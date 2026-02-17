@@ -11,13 +11,12 @@ import Combine
 
 ///Structure that represents the current modal presentation in the navigation flow.
 ///It holds the modal flow and the associated parent coordinator.
-public struct ModalPresentation {
-    
+struct ModalPresentation {
     ///A placeholder coordinator used when no coordinator is provided for the modal flow.
     private final class PlaceholderCoordinator: Coordinator { }
     
     ///The modal flow that this presentation is handling.
-    public let modalFlow: any ModalProtocol
+    let modalFlow: any ModalProtocol
     
     ///The parent coordinator responsible for managing the modal flow.
     let coordinator: any Coordinator
@@ -39,16 +38,50 @@ public struct ModalPresentation {
     }
 }
 
+extension ModalPresentation: Equatable {
+    static func == (lhs: ModalPresentation, rhs: ModalPresentation) -> Bool {
+        lhs.coordinator === rhs.coordinator && lhs.modalFlow.hashValue == rhs.modalFlow.hashValue
+    }
+}
+
 ///Class that manages the navigation state for the coordinator.
 ///It stores the current navigation path, presented modal flows, and any alerts.
-public final class NavigationState: ObservableObject {
-    
+final class NavigationState: ObservableObject {
     ///The current navigation path, which is a list of screen identifiers in the navigation stack.
-    @Published public var path: [AnyHashable] = []
+    @Published var path: [AnyHashable] = []
     
     ///The modal flow that is presented over the current navigation.
-    @Published public internal(set) var modalPresented: ModalPresentation?
+    @Published var modalPresented: ModalPresentation?
     
+    ///A list of currently presented alerts.
+    @Published var alerts: [Alert] = []
+    
+    ///A weak reference to the parent coordinator that presented the current navigation modally, if any.
+    weak var presentedBy: (any Coordinator)?
+    
+    private var observers: [AnyCancellable] = []
+    
+    init() {
+        $path.sink { [weak self] _ in
+            self?.closeKeyboard()
+        }.store(in: &observers)
+        
+        $modalPresented.sink { [weak self] _ in
+            self?.closeKeyboard()
+        }.store(in: &observers)
+    }
+}
+
+// MARK: Private Helpers
+private extension NavigationState {
+    ///Helper method to close the keyboard when navigation or modal state changes.
+    func closeKeyboard() {
+        UIApplication.shared.resignFirstResponder()
+    }
+}
+
+// MARK: NavigationState Models
+extension NavigationState {
     struct Alert {
         let title: String
         let actions: ()->AnyView
@@ -60,29 +93,4 @@ public final class NavigationState: ObservableObject {
             self.message = { AnyView(message()) }
         }
     }
-    
-    ///A list of currently presented alerts.
-    @Published var alerts: [Alert] = []
-    
-    ///A weak reference to the parent coordinator that presented the current navigation modally, if any.
-    public internal(set) weak var presentedBy: (any Coordinator)?
-    
-    private var observers: [AnyCancellable] = []
-    
-    public init() {
-        $path.sink { [weak self] _ in
-            self?.closeKeyboard()
-        }.store(in: &observers)
-        
-        $modalPresented.sink { [weak self] _ in
-            self?.closeKeyboard()
-        }.store(in: &observers)
-    }
-    
-    ///Helper method to close the keyboard when navigation or modal state changes.
-    private func closeKeyboard() {
-        UIApplication.shared.resignFirstResponder()
-    }
 }
-
-

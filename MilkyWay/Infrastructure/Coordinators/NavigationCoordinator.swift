@@ -9,10 +9,10 @@ import Foundation
 import SwiftUI
 
 ///Protocol for conforming by a screen identifier in horizontal navigation flow
-public protocol ScreenProtocol: Hashable { }
+protocol ScreenProtocol: Hashable { }
 
 ///Protocol that defines navigation-specific behavior
-public protocol NavigationCoordinator: Coordinator {
+protocol NavigationCoordinator: Coordinator {
     associatedtype Screen: ScreenProtocol
     associatedtype ScreenView: View
     
@@ -21,7 +21,7 @@ public protocol NavigationCoordinator: Coordinator {
 }
 
 @MainActor
-public extension NavigationCoordinator {
+extension NavigationCoordinator {
     
     ///Navigate to a new screen in current navigation stack
     func present(_ screen: Screen) {
@@ -51,7 +51,7 @@ public extension NavigationCoordinator {
 }
 
 @available(iOS 16.0, *)
-public extension View {
+extension View {
     
     ///Extend the view with navigation capabilities using the specified Coordinator
     func withNavigation<C: NavigationCoordinator>(_ coordinator: C) -> some View {
@@ -61,7 +61,7 @@ public extension View {
 
 @available(iOS 16.0, *)
 @MainActor
-public extension NavigationCoordinator {
+extension NavigationCoordinator {
     
     /// Creates a view for the given screen identifier and applies both navigation and modal capabilities
     func view(for screen: Screen) -> some View {
@@ -71,7 +71,7 @@ public extension NavigationCoordinator {
 
 ///A `ViewModifier` that adds navigation functionality to views managed by a `NavigationCoordinator`
 @available(iOS 16.0, *)
-private struct NavigationModifer<Coordinator: NavigationCoordinator>: ViewModifier {
+struct NavigationModifer<Coordinator: NavigationCoordinator>: ViewModifier {
     
     let coordinator: Coordinator
     @ObservedObject var state: NavigationState

@@ -9,7 +9,7 @@ import Foundation
 import SwiftUI
 
 ///Defines the modal presentation style for a modal flow
-public enum ModalStyle {
+enum ModalStyle {
     
     ///Presents the modal as a sheet, which occupies part of the screen and dims the background
     case sheet
@@ -23,13 +23,13 @@ public enum ModalStyle {
 }
 
 ///Protocol to be conformed by a modal navigation flow
-public protocol ModalProtocol: Hashable, Identifiable {
+protocol ModalProtocol: Hashable, Identifiable {
     
     ///The presentation style of the modal flow
     var style: ModalStyle { get }
 }
 
-public extension ModalProtocol {
+extension ModalProtocol {
     
     ///Default presentation style for modals is `.sheet`
     var style: ModalStyle { .sheet }
@@ -52,7 +52,7 @@ extension ModalProtocol {
 }
 
 ///Protocol for a Coordinator that manages modals
-public protocol ModalCoordinator: Coordinator {
+protocol ModalCoordinator: Coordinator {
     associatedtype Modal: ModalProtocol
     associatedtype ModalView: View
     
@@ -61,7 +61,7 @@ public protocol ModalCoordinator: Coordinator {
 }
 
 ///Enum to define how to resolve situations where a modal is already presented by this Coordinator
-public enum PresentationResolve {
+enum PresentationResolve {
     
     ///Present the new modal on top of the currently presented screen
     case overAll
@@ -71,7 +71,7 @@ public enum PresentationResolve {
 }
 
 @MainActor
-public extension ModalCoordinator {
+extension ModalCoordinator {
     
     ///Presents a modal flow over the current navigation using the specified `resolve` strategy
     func present(_ modalFlow: Modal, resolve: PresentationResolve = .overAll) {
@@ -88,10 +88,14 @@ private struct ModalModifer: ViewModifier {
     
     ///Creates a binding for checking if a modal of a specific style is currently presented
     func isPresentedBinding(_ style: ModalStyle) -> Binding<Bool> {
-        .init { [weak state] in
-            state?.modalPresented?.modalFlow.style == style
+        let presented = state.modalPresented
+        
+        return .init {
+            presented?.modalFlow.style == style
         } set: { [weak state] _ in
-            if let presented = state?.modalPresented,
+            guard state?.modalPresented == presented, state?.modalPresented != nil else { return }
+            
+            if let presented,
                let overlayPresented = presented.coordinator.state.modalPresented,
                overlayPresented.modalFlow.style == .overlay {
                 presented.coordinator.state.modalPresented = nil
@@ -107,7 +111,8 @@ private struct ModalModifer: ViewModifier {
                 presented.destination()
                     .coordinateSpace(name: CoordinateSpace.modal)
             }
-        }.sheet(isPresented: isPresentedBinding(.sheet)) { [weak state] in
+        }
+        .sheet(isPresented: isPresentedBinding(.sheet)) { [weak state] in
             state?.modalPresented!.destination()
                 .coordinateSpace(name: CoordinateSpace.modal)
         }.fullScreenCover(isPresented: isPresentedBinding(.cover)) { [weak state] in
@@ -123,12 +128,14 @@ private struct ModalModifer: ViewModifier {
     }
 }
 
-public extension View {
+extension View {
     
     ///Extends the current view to support modal presentation via a specified `Coordinator`
     @MainActor
     func withModal<C: Coordinator>(_ coordinator: C) -> some View {
-        modifier(ModalModifer(state: coordinator.state)).environmentObject(coordinator.weakReference)
+        modifier(ModalModifer(state: coordinator.state))
+            .environmentObject(coordinator.weakReference)
+            .environmentObject(coordinator.anyWeakReference)
     }
 }
 

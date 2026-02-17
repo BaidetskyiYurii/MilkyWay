@@ -29,7 +29,7 @@ extension Container {
     
     // Home API
     var homeAPI: Factory<HomeAPIProtocol> {
-        self { NetworkService<HomeRoutes>(baseURL: self.configuration.callAsFunction().apiURL) }
+        self { NetworkService<HomeRoutes>(baseURL: self.configuration().apiURL) }
             .scope(.cached)
     }
 }
@@ -38,8 +38,8 @@ extension Container {
 extension Container {
     // Home Repository
     var homeRepository: Factory<HomeRepositoryProtocol> {
-        self { HomeRepository(api: self.homeAPI.callAsFunction(),
-                              reachability: self.reachability.callAsFunction()) }
+        self { HomeRepository(api: self.homeAPI(),
+                              reachability: self.reachability()) }
         .scope(.cached)
     }
 }
@@ -49,8 +49,17 @@ extension Container {
     
     // Home Use Case
     var homeUseCase: Factory<HomeUseCaseProtocol> {
-        self { HomeUseCase(repository: self.homeRepository.callAsFunction()) }
+        self { HomeUseCase(repository: self.homeRepository()) }
             .scope(.cached)
+    }
+}
+
+// MARK: - ViewModels -
+extension Container {
+    
+    // Home Use Case
+    var homeViewModel: Factory<HomeViewModel> {
+        self { @MainActor in HomeViewModel(homeUseCase: self.homeUseCase()) }
     }
 }
 
@@ -58,7 +67,7 @@ extension Container {
 extension Container {
     // Mock Home Use Case
     var mockHomeUseCase: Factory<HomeUseCaseProtocol> {
-        self { MockHomeUseCase(repository: self.homeRepository.callAsFunction()) }
+        self { MockHomeUseCase(repository: self.homeRepository()) }
             .scope(.cached)
     }
 }

@@ -8,7 +8,7 @@
 import Foundation
 import SwiftUI
 
-public protocol CustomCoordinator: Coordinator {
+protocol CustomCoordinator: Coordinator {
     associatedtype DestinationView: View
     
     @MainActor
@@ -16,7 +16,6 @@ public protocol CustomCoordinator: Coordinator {
 }
 
 @MainActor
-public extension CustomCoordinator {
-    
+extension CustomCoordinator {
     var rootView: some View { destination().withModal(self) }
 }

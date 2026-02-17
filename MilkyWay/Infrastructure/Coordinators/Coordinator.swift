@@ -11,11 +11,21 @@ import Combine
 
 ///A class representing a weak reference for a specific Coordinator, that is passed by as an EnvironmentObject
 @MainActor
-public final class Navigation<C: Coordinator>: ObservableObject {
-    private(set) weak var object: C?
+final class Navigation<T>: ObservableObject {
+    
+    private(set) var object: (any Coordinator)?
     private var observer: AnyCancellable?
     
-    public init(_ object: C) {
+    init(_ object: T) where T: Coordinator {
+        self.object = object
+        
+        ///Observer triggers changes to the SwiftUI view when the Coordinator changes
+        observer = object.objectWillChange.sink { [weak self] _ in
+            self?.objectWillChange.send()
+        }
+    }
+    
+    init<C: Coordinator>(_ object: C) {
         self.object = object
         
         ///Observer triggers changes to the SwiftUI view when the Coordinator changes
@@ -25,11 +35,23 @@ public final class Navigation<C: Coordinator>: ObservableObject {
     }
     
     ///Access the Coordinator via a function call
-    public func callAsFunction() -> C { object! }
+    func callAsFunction() -> T { object as! T }
+}
+
+@MainActor
+@propertyWrapper
+struct CoordinatorLink<C>: DynamicProperty {
+    
+    @EnvironmentObject var typedCoordinator: Navigation<C>
+    @EnvironmentObject var coordinator: Navigation<any Coordinator>
+    
+    var wrappedValue: C { coordinator() as? C ?? typedCoordinator() }
+    
+    init() { }
 }
 
 ///A protocol representing a Coordinator, which manages the navigation flow and must be ObservableObject and Hashable
-public protocol Coordinator: ObservableObject, Hashable { }
+protocol Coordinator: ObservableObject, Hashable { }
 
 ///A unique key for associating a Coordinator state
 private var coordinatorStateKey: UInt8 = 0
@@ -37,7 +59,10 @@ private var coordinatorStateKey: UInt8 = 0
 ///A unique key for associating a Coordinator weak reference
 private var coordinatorWeakReferenceKey: UInt8 = 0
 
-public extension Coordinator {
+///A unique key for associating an any Coordinator weak reference
+private var coordinatorAnyWeakReferenceKey: UInt8 = 0
+
+extension Coordinator {
     
     ///Coordinator state, encapsulates current navigation path and presented modal flow and reference to parent coordinator
     @MainActor var state: NavigationState {
@@ -65,6 +90,19 @@ public extension Coordinator {
         }
     }
     
+    ///A weak reference to this Coordiantor, it is passed by using EnvironmentObject so that Coordinator can be accessed by any Coordinator reference
+    @MainActor var anyWeakReference: Navigation<any Coordinator> {
+        get {
+            if let reference = objc_getAssociatedObject(self, &coordinatorAnyWeakReferenceKey) as? Navigation<any Coordinator> {
+                return reference
+            } else {
+                let reference = Navigation<any Coordinator>(self)
+                objc_setAssociatedObject(self, &coordinatorAnyWeakReferenceKey, reference, .OBJC_ASSOCIATION_RETAIN)
+                return reference
+            }
+        }
+    }
+    
     func hash(into hasher: inout Hasher) {
         hasher.combine(ObjectIdentifier(self))
     }
@@ -78,7 +116,13 @@ public extension Coordinator {
     
     ///Dismiss modal navigation presented over this Coordinator
     @MainActor func dismissPresented() {
+        let modalCoordinator = state.modalPresented?.coordinator
         state.modalPresented = nil
+        
+        // keep it alive until animation is finished
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            _ = modalCoordinator
+        }
     }
     
     ///Move to the previous screen of the current navigation stack
@@ -118,7 +162,7 @@ extension Coordinator {
 
 ///Extension providing utility functions for presenting alerts
 @MainActor
-public extension Coordinator {
+extension Coordinator {
     
     static nonisolated var defaultAlertTitle: String {
         Bundle.main.infoDictionary!["CFBundleDisplayName"] as? String ??
@@ -162,10 +206,10 @@ public extension Coordinator {
 }
 
 ///Typealias for a Coordinator that supports both navigation and modal presentations
-public typealias NavigationModalCoordinator = NavigationCoordinator & ModalCoordinator
+typealias NavigationModalCoordinator = NavigationCoordinator & ModalCoordinator
 
 ///Extension defining custom CoordinateSpaces for navigation and modal views
-public extension CoordinateSpace {
+extension CoordinateSpace {
     
     ///Coordinate space for a navigation controller
     static let navController = "CoordinatorSpaceNavigationController"
@@ -173,5 +217,4 @@ public extension CoordinateSpace {
     ///Coordinate space for modal presentations
     static let modal = "CoordinatorSpaceModal"
 }
-
 

@@ -25,7 +25,7 @@ extension HomeFlowCoordinator: NavigationCoordinator {
     // view for each screen
     func destination(for screen: Screen) -> some View {
         switch screen {
-        case .home: HomeView(homeUseCase: homeUseCase)
+        case .home: HomeView()
         case .homeDetails(let post): HomeDetailsView(post: post)
         }
     }

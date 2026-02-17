@@ -7,24 +7,31 @@
 
 import Foundation
 
-final class HomeViewModel: HomeViewModelProtocol {
+@Observable
+@MainActor
+final class HomeViewModel {
     // MARK: - Properties
+    @ObservationIgnored
     private let homeUseCase: HomeUseCaseProtocol
     
     // MARK: - Observers
-    @Published private(set) var posts: [Post] = []
-    @Published var isLoading: Bool = false
-    @Published var error: Error? = nil
+    private(set) var posts: [Post] = []
+    var isLoading: Bool = false
+    var error: Error? = nil
     
     // MARK: - Init methods
     init(homeUseCase: HomeUseCaseProtocol) {
+        Log.debug("HomeViewModel init")
         self.homeUseCase = homeUseCase
+    }
+    
+    deinit {
+        Log.debug("HomeViewModel deinit")
     }
 }
 
 // MARK: - Public Methods
 extension HomeViewModel {
-    @MainActor
     func getPosts() async {
         isLoading = true
         defer { isLoading = false }

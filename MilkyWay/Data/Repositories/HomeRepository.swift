@@ -7,12 +7,10 @@
 
 import Foundation
 
-final class HomeRepository {
-    
+actor HomeRepository {
     // MARK: - Properties
     private let api: HomeAPIProtocol
     private let reachability: ReachabilityProtocol
-    
     
     init(api: HomeAPIProtocol,
          reachability: ReachabilityProtocol) {
