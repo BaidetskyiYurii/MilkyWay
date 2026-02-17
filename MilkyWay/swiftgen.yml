@@ -1,0 +1,38 @@
+## Generate constants for your localized strings.
+##   Be sure that SwiftGen only parses ONE locale (typically Base.lproj, or en.lproj, or whichever your development region is); otherwise it will generate the same keys multiple times.
+##   SwiftGen will parse all `.strings` files found in that folder.
+
+# Generate constants for localized strings
+strings:
+  inputs:
+    - Resources/Localizables/en.lproj/Localizable.strings
+  outputs:
+    - templateName: structured-swift5
+      output: Resources/Localizables/Strings+Generated.swift
+      params:
+        publicAccess: false
+        enumName: LS
+        
+# Generate constants for custom fonts
+fonts:
+  inputs:
+    - Resources/Fonts
+  outputs:
+    - templateName: swift5
+      output: Resources/Fonts/Fonts+Generated.swift
+      params:
+        enumName: Fonts
+        forceProvidesNamespaces: true
+        publicAccess: false
+      
+
+# Generate constants for images
+xcassets:
+  inputs:
+    - Resources/Icons/Icons.xcassets
+  outputs:
+    - templateName: swift5
+      output: Resources/Icons/Icons+Generated.swift
+      params:
+        publicAccess: false
+        enumName: Icon

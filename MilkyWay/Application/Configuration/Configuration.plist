@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Development</key>
+	<dict>
+		<key>environment</key>
+		<string>development</string>
+		<key>apiURL</key>
+		<string>https://jsonplaceholder.typicode.com</string>
+	</dict>
+	<key>Staging</key>
+	<dict>
+		<key>environment</key>
+		<string>staging</string>
+		<key>apiURL</key>
+		<string>https://jsonplaceholder.typicode.com</string>
+	</dict>
+	<key>Production</key>
+	<dict>
+		<key>environment</key>
+		<string>production</string>
+		<key>apiURL</key>
+		<string>https://jsonplaceholder.typicode.com</string>
+	</dict>
+</dict>
+</plist>

@@ -1,0 +1,24 @@
+//
+//  Localizable.strings
+//  SwiftUITemplate
+//
+//  Created by Baidetskyi Yurii on 26.05.2025.
+//
+
+// Common
+"common.ok"="OK";
+"common.error"="Error";
+
+"common.noInternetConnection"="No internet connection";
+"common.checkInternetConnection"="Please check your internet connection and try again";
+
+//SignIn View
+"signIn.tapToSignIn"="Tap to Sign in";
+
+// Home View
+"home.title"="Home";
+"home.tryModal"="Try Modal";
+"home.logOut"="Log Out";
+
+// Profile View
+"profile.title"="Profile";
