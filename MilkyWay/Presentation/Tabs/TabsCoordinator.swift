@@ -9,34 +9,45 @@ import Foundation
 import SwiftUI
 
 final class TabsCoordinator {
-    
     enum Tabs: Hashable, CaseIterable {
-        case home
+        case map
+        case routes
+        case explore
         case profile
         
         var title: String {
             switch self {
-            case .home:
-                return LS.Home.title
+            case .map:
+                LS.Map.navTitle
+            case .routes:
+                LS.Routes.navTitle
+            case .explore:
+                LS.Explore.navTitle
             case .profile:
-                return LS.Profile.title
+                LS.Profile.navTitle
             }
         }
         
         var systemImage: String {
             switch self {
-            case .home:
-                return "house"
+            case .map:
+                "mappin.and.ellipse"
+            case .routes:
+                "paperplane.fill"
+            case .explore:
+                "network"
             case .profile:
-                return "person"
+                "person"
             }
         }
     }
     
-    @Published var currentTab: Tabs = .home
+    @Published var currentTab: Tabs = .map
     
     private let tabs: [Tabs] = Tabs.allCases
-    private let homeTabFlow = HomeFlowCoordinator()
+    private let mapTabFlow = MapFlowCoordinator()
+    private let routesTabFlow = RoutesFlowCoordinator()
+    private let exploreTabFlow = ExploreFlowCoordinator()
     private let profileTabFlow = ProfileFlowCoordinator()
 }
 
@@ -50,8 +61,12 @@ extension TabsCoordinator: CustomCoordinator {
     @MainActor @ViewBuilder
     func view(for tab: Tabs) -> some View {
         switch tab {
-        case .home:
-            homeTabFlow.view(for: .home)
+        case .map:
+            mapTabFlow.view(for: .home)
+        case .routes:
+            routesTabFlow.view(for: .routes)
+        case .explore:
+            exploreTabFlow.view(for: .explore)
         case .profile:
             profileTabFlow.view(for: .profile)
         }

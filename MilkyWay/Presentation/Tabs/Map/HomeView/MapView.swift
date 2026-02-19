@@ -1,5 +1,5 @@
 //
-//  HomeView.swift
+//  MapView.swift
 //  SwiftUITemplate
 //
 //  Created by Baidetskyi Yurii on 25.05.2025.
@@ -8,11 +8,11 @@
 import SwiftUI
 import FactoryKit
 
-struct HomeView: View {
+struct MapView: View {
 //    @EnvironmentObject var appCoordinator: Navigation<AppCoordinator>
-//    @EnvironmentObject var coordinator: Navigation<HomeFlowCoordinator>
+//    @EnvironmentObject var coordinator: Navigation<MapFlowCoordinator>
     @CoordinatorLink var appCoordinator: AppCoordinator
-    @CoordinatorLink var coordinator: HomeFlowCoordinator
+    @CoordinatorLink var coordinator: MapFlowCoordinator
     
     @InjectedObservable(\.homeViewModel) var viewModel
     
@@ -21,7 +21,7 @@ struct HomeView: View {
             .task {
                 await viewModel.getPosts()
             }
-            .navigationTitle(LS.Home.title)
+            .navigationTitle(LS.Map.navTitle)
             .toolbar {
                 ToolbarItem {
                     Button {
@@ -29,7 +29,7 @@ struct HomeView: View {
                             coordinator.present(.modalDetails())
                         }
                     } label: {
-                        Text(LS.Home.tryModal)
+                        Text(LS.Map.tryModal)
                             .foregroundStyle(.teal)
                             .font(Fonts.Poppins.medium.swiftUIFont(size: 14))
                     }
@@ -41,7 +41,7 @@ struct HomeView: View {
                             appCoordinator.handleLogOut()
                         }
                     } label: {
-                        Text(LS.Home.logOut)
+                        Text(LS.Map.logOut)
                             .foregroundStyle(.red)
                             .font(Fonts.Poppins.medium.swiftUIFont(size: 14))
                     }
@@ -52,7 +52,7 @@ struct HomeView: View {
 }
 
 // MARK: Private UI
-private extension HomeView {
+private extension MapView {
     var content: some View {
         VStack {
             List(viewModel.posts) { post in
@@ -67,6 +67,6 @@ private extension HomeView {
 }
 
 #Preview {
-    HomeView()
+    MapView()
 }
 

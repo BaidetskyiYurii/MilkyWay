@@ -20,17 +20,25 @@ internal enum LS {
     /// OK
     internal static let ok = LS.tr("Localizable", "common.ok", fallback: "OK")
   }
-  internal enum Home {
+  internal enum Explore {
+    /// Explore
+    internal static let navTitle = LS.tr("Localizable", "explore.nav_title", fallback: "Explore")
+  }
+  internal enum Map {
     /// Log Out
-    internal static let logOut = LS.tr("Localizable", "home.logOut", fallback: "Log Out")
-    /// Home
-    internal static let title = LS.tr("Localizable", "home.title", fallback: "Home")
+    internal static let logOut = LS.tr("Localizable", "map.logOut", fallback: "Log Out")
+    /// Map
+    internal static let navTitle = LS.tr("Localizable", "map.nav_title", fallback: "Map")
     /// Try Modal
-    internal static let tryModal = LS.tr("Localizable", "home.tryModal", fallback: "Try Modal")
+    internal static let tryModal = LS.tr("Localizable", "map.tryModal", fallback: "Try Modal")
   }
   internal enum Profile {
     /// Profile
-    internal static let title = LS.tr("Localizable", "profile.title", fallback: "Profile")
+    internal static let navTitle = LS.tr("Localizable", "profile.nav_title", fallback: "Profile")
+  }
+  internal enum Routes {
+    /// Routes
+    internal static let navTitle = LS.tr("Localizable", "routes.nav_title", fallback: "Routes")
   }
   internal enum SignIn {
     /// Tap to Sign in

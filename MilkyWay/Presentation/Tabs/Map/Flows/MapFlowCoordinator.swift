@@ -1,5 +1,5 @@
 //
-//  HomeFlowCoordinator.swift
+//  MapFlowCoordinator.swift
 //  SwiftUITemplate
 //
 //  Created by Baidetskyi Yurii on 25.05.2025.
@@ -9,12 +9,10 @@ import Foundation
 import SwiftUI
 import FactoryKit
 
-final class HomeFlowCoordinator {
-    @Injected(\.homeUseCase) private var homeUseCase
-}
+final class MapFlowCoordinator {}
 
 // MARK: - NavigationCoordinator
-extension HomeFlowCoordinator: NavigationCoordinator {
+extension MapFlowCoordinator: NavigationCoordinator {
     
     // screens available for navigation
     enum Screen: ScreenProtocol {
@@ -25,14 +23,14 @@ extension HomeFlowCoordinator: NavigationCoordinator {
     // view for each screen
     func destination(for screen: Screen) -> some View {
         switch screen {
-        case .home: HomeView()
+        case .home: MapView()
         case .homeDetails(let post): HomeDetailsView(post: post)
         }
     }
 }
 
 // MARK: - ModalCoordinator
-extension HomeFlowCoordinator: ModalCoordinator {
+extension MapFlowCoordinator: ModalCoordinator {
     enum Modal: ModalProtocol {
         case modalDetails(HomeDetailsFlowCoordinator = .init())
         

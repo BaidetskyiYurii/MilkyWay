@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct HomeDetailsView: View {
-    @EnvironmentObject var coordinator: Navigation<HomeFlowCoordinator>
+    @EnvironmentObject var coordinator: Navigation<MapFlowCoordinator>
     
     private let post: Post
     

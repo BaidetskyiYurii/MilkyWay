@@ -15,10 +15,16 @@
 //SignIn View
 "signIn.tapToSignIn"="Tap to Sign in";
 
-// Home View
-"home.title"="Home";
-"home.tryModal"="Try Modal";
-"home.logOut"="Log Out";
+// Map
+"map.nav_title"="Map";
+"map.tryModal"="Try Modal";
+"map.logOut"="Log Out";
+
+// Routes
+"routes.nav_title"="Routes";
+
+// Explore
+"explore.nav_title"="Explore";
 
 // Profile View
-"profile.title"="Profile";
+"profile.nav_title"="Profile";
