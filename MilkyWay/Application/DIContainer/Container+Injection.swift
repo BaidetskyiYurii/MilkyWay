@@ -1,12 +1,13 @@
 //
 //  Container+Injection.swift
-//  SwiftUITemplate
+//  MilkyWay
 //
 //  Created by Baidetskyi Yurii on 23.05.2025.
 //
 
 import Foundation
 import FactoryKit
+import SwiftData
 
 // MARK: - Services -
 extension Container {
@@ -18,8 +19,13 @@ extension Container {
     
     
     // Reachability
-    var reachability: Factory<ReachabilityProtocol> {
-        self { Reachability() }
+    var reachabilityService: Factory<ReachabilityServiceProtocol> {
+        self { ReachabilityService() }
+            .scope(.cached)
+    }
+    
+    var locationService: Factory<LocationService> {
+        self { @MainActor in LocationService() }
             .scope(.cached)
     }
 }
@@ -34,12 +40,43 @@ extension Container {
     }
 }
 
+// MARK: - Storage -
+extension Container {
+    
+    // Model Container
+    var modelContainer: Factory<ModelContainer> {
+        self {
+            do {
+                let container = try ModelContainer(for: MapItemDTO.self)
+                
+                for config in container.configurations {
+                    Log.debug("📦 SwiftData model stored at: \(config.url.path)")
+                }
+                
+                return container
+            } catch {
+                fatalError("❌ Failed to create ModelContainer: \(error)")
+            }
+        }
+        .scope(.singleton)
+    }
+    
+    // Map Storage
+    var mapStorage: Factory<MapStorageProtocol> {
+        self {
+            MapStorage(modelContainer: self.modelContainer())
+        }
+        .scope(.cached)
+    }
+}
+
 // MARK: - Repositories -
 extension Container {
-    // Home Repository
-    var homeRepository: Factory<HomeRepositoryProtocol> {
+    // Map Repository
+    var mapRepository: Factory<MapRepositoryProtocol> {
         self { HomeRepository(api: self.homeAPI(),
-                              reachability: self.reachability()) }
+                              reachability: self.reachabilityService(),
+                              storage: self.mapStorage()) }
         .scope(.cached)
     }
 }
@@ -47,9 +84,9 @@ extension Container {
 // MARK: - Use Cases -
 extension Container {
     
-    // Home Use Case
-    var homeUseCase: Factory<HomeUseCaseProtocol> {
-        self { HomeUseCase(repository: self.homeRepository()) }
+    // Map Use Case
+    var mapUseCase: Factory<MapUseCaseProtocol> {
+        self { HomeUseCase(repository: self.mapRepository()) }
             .scope(.cached)
     }
 }
@@ -57,17 +94,17 @@ extension Container {
 // MARK: - ViewModels -
 extension Container {
     
-    // Home Use Case
-    var homeViewModel: Factory<HomeViewModel> {
-        self { @MainActor in HomeViewModel(homeUseCase: self.homeUseCase()) }
+    // MapViewModel
+    var mapViewModel: Factory<MapViewModel> {
+        self { @MainActor in MapViewModel(mapUseCase: self.mapUseCase()) }
     }
 }
 
 // MARK: - Mock Use Cases -
 extension Container {
     // Mock Home Use Case
-    var mockHomeUseCase: Factory<HomeUseCaseProtocol> {
-        self { MockHomeUseCase(repository: self.homeRepository()) }
+    var mockMapUseCase: Factory<MapUseCaseProtocol> {
+        self { MockHomeUseCase(repository: self.mapRepository()) }
             .scope(.cached)
     }
 }

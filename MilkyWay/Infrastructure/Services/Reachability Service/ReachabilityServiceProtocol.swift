@@ -1,13 +1,13 @@
 //
-//  ReachabilityProtocol.swift
-//  SwiftUITemplate
+//  ReachabilityServiceProtocol.swift
+//  MilkyWay
 //
 //  Created by Baidetskyi Yurii on 19.05.2025.
 //
 
 import Foundation
 
-protocol ReachabilityProtocol {
+protocol ReachabilityServiceProtocol {
     var isConnected: Bool { get }
     
     func startMonitoring()

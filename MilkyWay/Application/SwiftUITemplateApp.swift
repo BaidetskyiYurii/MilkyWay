@@ -1,15 +1,20 @@
 //
-//  SwiftUITemplateApp.swift
-//  SwiftUITemplate
+//  MilkyWayApp.swift
+//  MilkyWay
 //
 //  Created by Baidetskyi Yurii on 18.05.2025.
 //
 
 import SwiftUI
+import SwiftData
+import FactoryKit
 
 @main
-struct SwiftUITemplateApp: App {
+struct MilkyWayApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+    
+    @Injected(\.modelContainer)
+    private var sharedModelContainer
     
     @StateObject var appCoordinator = AppCoordinator()
     
@@ -17,5 +22,6 @@ struct SwiftUITemplateApp: App {
         WindowGroup {
             appCoordinator.rootView
         }
+        .modelContainer(sharedModelContainer)
     }
 }

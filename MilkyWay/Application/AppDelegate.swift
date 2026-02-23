@@ -1,6 +1,6 @@
 //
 //  AppDelegate.swift
-//  SwiftUITemplate Production
+//  MilkyWay Production
 //
 //  Created by Baidetskyi Yurii on 23.05.2025.
 //

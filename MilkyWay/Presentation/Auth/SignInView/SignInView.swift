@@ -1,6 +1,6 @@
 //
 //  SignInView.swift
-//  SwiftUITemplate
+//  MilkyWay
 //
 //  Created by Baidetskyi Yurii on 24.06.2025.
 //

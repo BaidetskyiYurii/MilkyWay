@@ -1,19 +1,23 @@
 //
-//  Reachability.swift
-//  SwiftUITemplate
+//  ReachabilityService.swift
+//  MilkyWay
 //
 //  Created by Baidetskyi Yurii on 19.05.2025.
 //
 
 import Combine
 import Network
+import SwiftUI
 
-final class Reachability: ObservableObject {
-    @Published private(set) var isMonitoring = false
-    @Published private(set) var pathStatus = NWPath.Status.requiresConnection
-    @Published private(set) var isConnected: Bool = true
+@Observable
+final class ReachabilityService {
+    private(set) var isMonitoring = false
+    private(set) var pathStatus = NWPath.Status.requiresConnection
+    private(set) var isConnected: Bool = true
     
+    @ObservationIgnored
     private var monitor: NWPathMonitor?
+    @ObservationIgnored
     private let queue = DispatchQueue(label: "NetworkStatus_Monitor")
     
     init() { startMonitoring() }
@@ -21,7 +25,7 @@ final class Reachability: ObservableObject {
     deinit { stopMonitoring() }
 }
 
-extension Reachability: ReachabilityProtocol {
+extension ReachabilityService: ReachabilityServiceProtocol {
     
     func startMonitoring() {
         guard !isMonitoring else { return }

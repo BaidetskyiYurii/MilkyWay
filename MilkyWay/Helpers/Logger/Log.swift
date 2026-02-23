@@ -1,6 +1,6 @@
 //
 //  Log.swift
-//  SwiftUITemplate
+//  MilkyWay
 //
 //  Created by Baidetskyi Yurii on 25.05.2025.
 //

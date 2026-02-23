@@ -1,0 +1,28 @@
+//
+//  PersistenceStore.swift
+//  MilkyWay
+//
+//  Created by Baidetskyi Yurii on 19.02.2026.
+//
+
+import SwiftData
+import Foundation
+
+protocol PersistenceStore: ModelActor where SendableModel.Model == Model {
+    associatedtype Model: PersistentModel
+    associatedtype SendableModel: ProtectedModel
+    
+    func insert(_ item: SendableModel) throws  -> PersistentIdentifier
+    func insertBatch(_ items: [SendableModel], saveAtEach: Int) throws -> Set<PersistentIdentifier>
+    
+    func delete(id: PersistentIdentifier) throws
+    
+    func fetch() throws -> [SendableModel]
+    func fetch(page: Int, amountPerPage: Int) throws -> [SendableModel]
+    func fetch(id: PersistentIdentifier) throws -> SendableModel?
+    func fetch(descriptor: FetchDescriptor<Model>) throws -> [SendableModel]
+    
+    func updateFields(id: PersistentIdentifier, using updates: (Model) -> Void) throws
+    func eraseAllData() throws
+}
+

@@ -1,13 +1,13 @@
 //
 //  HomeRepositoryProtocol.swift
-//  SwiftUITemplate
+//  MilkyWay
 //
 //  Created by Baidetskyi Yurii on 18.05.2025.
 //
 
 import Foundation
 
-protocol HomeRepositoryProtocol {
+protocol MapRepositoryProtocol {
     /// Fetches a list of posts matching the given query.
     ///
     /// - Parameter query: An optional search query string to filter posts.
@@ -15,4 +15,8 @@ protocol HomeRepositoryProtocol {
     /// - Returns: An array of `Post` objects matching the query.
     /// - Throws: An error if the fetch operation fails.
     func fetchPosts(query: String?) async throws -> [Post]
+    
+    func fetchMapItems() async throws -> [MapItem]
+    
+    func insert(_ item: MapItem) async throws
 }

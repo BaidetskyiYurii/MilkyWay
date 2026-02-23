@@ -1,6 +1,6 @@
 //
 //  Color+Extensions.swift
-//  SwiftUITemplate
+//  MilkyWay
 //
 //  Created by Baidetskyi Yurii on 02.06.2025.
 //

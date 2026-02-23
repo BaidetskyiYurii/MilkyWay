@@ -1,6 +1,6 @@
 //
 //  MockingURLProtocol.swift
-//  SwiftUITemplate
+//  MilkyWay
 //
 //  Created by Baidetskyi Yurii on 18.05.2025.
 //

@@ -1,6 +1,6 @@
 //
 //  MockHomeUseCase.swift
-//  SwiftUITemplate
+//  MilkyWay
 //
 //  Created by Baidetskyi Yurii on 25.05.2025.
 //
@@ -10,16 +10,24 @@ import Foundation
 final class MockHomeUseCase {
     
     // MARK: - Properties
-    private let repository: HomeRepositoryProtocol
+    private let repository: MapRepositoryProtocol
     
     // MARK: - Init methods
-    init(repository: HomeRepositoryProtocol) {
+    init(repository: MapRepositoryProtocol) {
         self.repository = repository
     }
 }
 
 // MARK: - Interface methods
-extension MockHomeUseCase: HomeUseCaseProtocol {
+extension MockHomeUseCase: MapUseCaseProtocol {
+    func insert(_ item: MapItem) async throws {
+        
+    }
+    
+    func fetchMapItems() throws -> [MapItem] {
+        []
+    }
+    
     func fetchPosts(query: String?) async throws -> [Post] {
         return [.dummy, .dummy, .dummy]
     }
