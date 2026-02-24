@@ -16,6 +16,8 @@ final class LocationService: NSObject {
     
     var currentLocation: CLLocation?
     var recordedLocations: [CLLocation] = []
+    var startLocation: CLLocation?
+    var endLocation: CLLocation?
     var isRecording = false
     var isAuthorized = false
     
@@ -43,20 +45,26 @@ extension LocationService {
     }
 
     func startUpdating() {
-        guard manager.authorizationStatus == .authorizedAlways else { return }
+        guard manager.authorizationStatus == .authorizedAlways else {
+            requestWhenInUse()
+            return
+        }
         manager.startUpdatingLocation()
     }
     
     func startRecording() {
         guard manager.authorizationStatus == .authorizedAlways else { return }
         recordedLocations.removeAll()
+        startLocation = nil
+        endLocation = nil
+        
         isRecording = true
         manager.startUpdatingLocation()
     }
 
     func stopRecording() {
         isRecording = false
-        manager.stopUpdatingLocation()
+        endLocation = recordedLocations.last
     }
 }
 
@@ -86,16 +94,42 @@ extension LocationService: CLLocationManagerDelegate {
            }
        }
 
-       func locationManager(_ manager: CLLocationManager,
-                            didUpdateLocations locations: [CLLocation]) {
-           guard let location = locations.last else { return }
-           
-           currentLocation = location
-           
-           if isRecording && location.horizontalAccuracy < 20 {
-               recordedLocations.append(location)
-           }
-       }
+    func locationManager(_ manager: CLLocationManager,
+                         didUpdateLocations locations: [CLLocation]) {
+
+        guard let location = locations.last else { return }
+
+        currentLocation = location
+
+        guard isRecording else { return }
+
+        // 1️⃣ Accuracy filter
+        guard location.horizontalAccuracy > 0,
+              location.horizontalAccuracy < 15 else { return }
+
+        // 2️⃣ Speed sanity check
+        guard location.speed < 50 else { return }
+
+        // 3️⃣ Minimum distance filter
+        if let last = recordedLocations.last {
+            let distance = location.distance(from: last)
+
+            // Ignore tiny movements
+            guard distance > 3 else { return }
+
+            // Ignore impossible jumps
+            if distance > 100 {
+                return
+            }
+        }
+
+        // 4️⃣ Set start if needed
+        if startLocation == nil {
+            startLocation = location
+        }
+
+        recordedLocations.append(location)
+    }
     
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
         Log.debug("locationManager didFailWithError: \(error.localizedDescription)")

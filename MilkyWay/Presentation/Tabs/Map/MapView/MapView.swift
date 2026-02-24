@@ -17,23 +17,64 @@ struct MapView: View {
     @InjectedObservable(\.locationService) var locationService
     
     @State private var cameraPosition: MapCameraPosition = .userLocation(followsHeading: false, fallback: .automatic)
-    
     @Namespace private var mapScope
     
     var body: some View {
         Map(position: $cameraPosition, scope: mapScope) {
             UserAnnotation()
             
-            MapPolyline(
-                   coordinates: locationService.recordedLocations.map { $0.coordinate }
-               )
-               .stroke(.blue, lineWidth: 4)
+            // Start Marker
+            if let start = locationService.startLocation {
+                Annotation("Start", coordinate: start.coordinate) {
+                    Circle()
+                        .fill(.green)
+                        .frame(width: 16, height: 16)
+                        .overlay(
+                            Circle().stroke(.white, lineWidth: 3)
+                        )
+                }
+            }
+            
+            // End Marker
+            if let end = locationService.endLocation {
+                Annotation("Finish", coordinate: end.coordinate) {
+                    Circle()
+                        .fill(.red)
+                        .frame(width: 16, height: 16)
+                        .overlay(
+                            Circle().stroke(.white, lineWidth: 3)
+                        )
+                }
+            }
+            
+           
+            let coords = locationService.recordedLocations.map { $0.coordinate }
+
+            MapPolyline(coordinates: coords)
+                .stroke(
+                    .blue.opacity(0.25),
+                    style: StrokeStyle(
+                        lineWidth: 12,
+                        lineCap: .round,
+                        lineJoin: .round
+                    )
+                )
+
+            MapPolyline(coordinates: coords)
+                .stroke(
+                    .blue,
+                    style: StrokeStyle(
+                        lineWidth: 6,
+                        lineCap: .round,
+                        lineJoin: .round
+                    )
+                )
         }
         .safeAreaInset(edge: .bottom) {
             HStack {
                 Spacer()
                 
-                RecordRouteButton()
+                RecordRouteButton(cameraPosition: $cameraPosition)
                     .padding(.horizontal, 2)
                 
                 MapUserLocationButton(scope: mapScope)
@@ -46,24 +87,29 @@ struct MapView: View {
             
         }
         .mapScope(mapScope)
-        .navigationTitle(LS.Map.navTitle)
-        .loadingOverlay($viewModel.isLoading)
         .onAppear {
             updateCameraPosition()
         }
     }
-    
+}
+
+// MARK: Private Methods
+private extension MapView {
     func updateCameraPosition() {
-        if let userLocation = locationService.currentLocation {
-            let userRegion = MKCoordinateRegion(
-                center: userLocation.coordinate,
-                span: MKCoordinateSpan(
-                    latitudeDelta: 0.15,
-                    longitudeDelta: 0.15
-                )
-            )
-            withAnimation {
-                cameraPosition = .region(userRegion)
+//        guard let userLocation = locationService.currentLocation else { return }
+//        let userRegion = MKCoordinateRegion(
+//            center: userLocation.coordinate,
+//            span: MKCoordinateSpan(
+//                latitudeDelta: 0.15,
+//                longitudeDelta: 0.15
+//            )
+//        )
+        
+        withAnimation {
+            if locationService.isRecording {
+                cameraPosition = .userLocation(followsHeading: true, fallback: .automatic)
+            } else {
+//                cameraPosition = .region(userRegion)
             }
         }
     }
@@ -71,29 +117,39 @@ struct MapView: View {
 
 // MARK: Private UI
 private extension MapView {
+    
+    
 }
 
+
 #Preview {
-//    let previewContainer = MapItemDTO.preview
-//    
-//    Container.shared.modelContainer.register {
-//        previewContainer
-//    }
+    //    let previewContainer = MapItemDTO.preview
+    //
+    //    Container.shared.modelContainer.register {
+    //        previewContainer
+    //    }
     MapView()
-//            .modelContainer(previewContainer)
+    //            .modelContainer(previewContainer)
 }
 
 
 struct RecordRouteButton: View {
-
     @InjectedObservable(\.locationService)
     private var locationService
-
+    
+    @Binding var cameraPosition: MapCameraPosition
+    
     var body: some View {
         Button {
             if locationService.isRecording {
                 locationService.stopRecording()
+                zoomToRoute()
+                
             } else {
+                withAnimation {
+                    cameraPosition = .userLocation(followsHeading: true, fallback: .automatic)
+                }
+                
                 locationService.startRecording()
             }
         } label: {
@@ -106,5 +162,14 @@ struct RecordRouteButton: View {
                 .clipShape(RoundedRectangle(cornerRadius: 12))
         }
         .padding()
+    }
+    
+    func zoomToRoute() {
+        let coords = locationService.recordedLocations.map { $0.coordinate }
+        guard let rect = MKMapRect.fitting(coords, paddingMeters: 250) else { return }
+        
+        withAnimation {
+            cameraPosition = .rect(rect)
+        }
     }
 }
