@@ -19,4 +19,14 @@ import Foundation
 protocol MapStorageProtocol: ModelActor {
     func insert(_ item: MapItem) throws -> PersistentIdentifier
     func fetch() throws -> [MapItem]
+    
+    func insertRoute(_ route: MapRoute) throws
+    
+    func fetchAllRoutes() throws -> [MapRoute]
+    func fetchRoute(with id: String) throws -> MapRoute?
+    
+    func deleteRoute(with id: String) throws
+    func deleteAllRoutes() throws
+    
+    func updateRoute(id: String, using updates: (MapRouteDTO) -> Void) throws
 }

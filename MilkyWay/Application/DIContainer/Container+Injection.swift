@@ -74,7 +74,7 @@ extension Container {
 extension Container {
     // Map Repository
     var mapRepository: Factory<MapRepositoryProtocol> {
-        self { HomeRepository(api: self.homeAPI(),
+        self { MapRepository(api: self.homeAPI(),
                               reachability: self.reachabilityService(),
                               storage: self.mapStorage()) }
         .scope(.cached)
@@ -86,7 +86,7 @@ extension Container {
     
     // Map Use Case
     var mapUseCase: Factory<MapUseCaseProtocol> {
-        self { HomeUseCase(repository: self.mapRepository()) }
+        self { MapUseCase(repository: self.mapRepository()) }
             .scope(.cached)
     }
 }
@@ -101,10 +101,10 @@ extension Container {
 }
 
 // MARK: - Mock Use Cases -
-extension Container {
-    // Mock Home Use Case
-    var mockMapUseCase: Factory<MapUseCaseProtocol> {
-        self { MockHomeUseCase(repository: self.mapRepository()) }
-            .scope(.cached)
-    }
-}
+//extension Container {
+//    // Mock Home Use Case
+//    var mockMapUseCase: Factory<MapUseCaseProtocol> {
+//        self { MockMapUseCase(repository: self.mapRepository()) }
+//            .scope(.cached)
+//    }
+//}

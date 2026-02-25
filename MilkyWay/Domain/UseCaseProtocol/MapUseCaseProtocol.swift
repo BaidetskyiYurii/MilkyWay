@@ -20,4 +20,14 @@ protocol MapUseCaseProtocol {
     func fetchMapItems() async throws -> [MapItem]
     
     func insert(_ item: MapItem) async throws
+    
+    // Map Route methods
+    func insertRoute(_ route: MapRoute) async throws
+    func fetchAllRoutes() async throws -> [MapRoute]
+    func fetchRoute(with id: String) async throws -> MapRoute?
+    
+    func deleteRoute(with id: String) async throws
+    func deleteAllRoutes() async throws
+    
+    func updateRoute(id: String, using updates: (MapRouteDTO) -> Void) async throws
 }
