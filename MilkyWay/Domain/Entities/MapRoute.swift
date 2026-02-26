@@ -39,6 +39,21 @@ extension Coordinate {
             longitude: dto.longitude
         )
     }
+    
+    init(from cllocation: CLLocation) {
+        self.init(
+            id: UUID().uuidString,
+            latitude: cllocation.coordinate.latitude,
+            longitude: cllocation.coordinate.longitude
+        )
+    }
+    
+}
+
+extension Coordinate {
+    func toLocationCoordinate() -> CLLocationCoordinate2D {
+        .init(latitude: latitude, longitude: longitude)
+    }
 }
 
 

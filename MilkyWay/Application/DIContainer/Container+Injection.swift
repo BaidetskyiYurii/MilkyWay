@@ -47,7 +47,7 @@ extension Container {
     var modelContainer: Factory<ModelContainer> {
         self {
             do {
-                let container = try ModelContainer(for: MapItemDTO.self)
+                let container = try ModelContainer(for: MapRouteDTO.self)
                 
                 for config in container.configurations {
                     Log.debug("📦 SwiftData model stored at: \(config.url.path)")
@@ -97,6 +97,11 @@ extension Container {
     // MapViewModel
     var mapViewModel: Factory<MapViewModel> {
         self { @MainActor in MapViewModel(mapUseCase: self.mapUseCase()) }
+    }
+    
+    // RoutesViewModel
+    var routesViewModel: Factory<RoutesViewModel> {
+        self { @MainActor in RoutesViewModel(mapUseCase: self.mapUseCase()) }
     }
 }
 

@@ -22,59 +22,33 @@ struct MapView: View {
     var body: some View {
         Map(position: $cameraPosition, scope: mapScope) {
             UserAnnotation()
-            
-            // Start Marker
-            if let start = locationService.startLocation {
-                Annotation("Start", coordinate: start.coordinate) {
-                    Circle()
-                        .fill(.green)
-                        .frame(width: 16, height: 16)
-                        .overlay(
-                            Circle().stroke(.white, lineWidth: 3)
-                        )
-                }
+        
+            ForEach(viewModel.routes) { route in
+                let startLocation = route.startLocation.toLocationCoordinate()
+                let endLocation = route.endLocation.toLocationCoordinate()
+                let coords = route.polylineCoordinates.map { $0.toLocationCoordinate() }
+                
+                createMapRouteUI(
+                    startLocation: startLocation,
+                    endLocation: endLocation,
+                    polylineCoordinates: coords
+                )
             }
             
-            // End Marker
-            if let end = locationService.endLocation {
-                Annotation("Finish", coordinate: end.coordinate) {
-                    Circle()
-                        .fill(.red)
-                        .frame(width: 16, height: 16)
-                        .overlay(
-                            Circle().stroke(.white, lineWidth: 3)
-                        )
-                }
+            if locationService.isRecording {
+                let coords = locationService.recordedLocations.map { $0.coordinate }
+                createMapRouteUI(
+                    startLocation: locationService.startLocation?.coordinate,
+                    endLocation: locationService.endLocation?.coordinate,
+                    polylineCoordinates: coords
+                )
             }
-            
-           
-            let coords = locationService.recordedLocations.map { $0.coordinate }
-
-            MapPolyline(coordinates: coords)
-                .stroke(
-                    .blue.opacity(0.25),
-                    style: StrokeStyle(
-                        lineWidth: 12,
-                        lineCap: .round,
-                        lineJoin: .round
-                    )
-                )
-
-            MapPolyline(coordinates: coords)
-                .stroke(
-                    .blue,
-                    style: StrokeStyle(
-                        lineWidth: 6,
-                        lineCap: .round,
-                        lineJoin: .round
-                    )
-                )
         }
         .safeAreaInset(edge: .bottom) {
             HStack {
                 Spacer()
                 
-                RecordRouteButton(cameraPosition: $cameraPosition)
+                RecordRouteButtonView(locationService: locationService, viewModel: viewModel, cameraPosition: $cameraPosition)
                     .padding(.horizontal, 2)
                 
                 MapUserLocationButton(scope: mapScope)
@@ -89,6 +63,95 @@ struct MapView: View {
         .mapScope(mapScope)
         .onAppear {
             updateCameraPosition()
+        }
+        .task {
+            await viewModel.getAllRoutes()
+        }
+        .onChange(of: viewModel.routeIdToZoomIn) { _, newValue in
+            guard let newValue else { return }
+            zoomToRoute(with: newValue)
+        }
+        .onChange(of: viewModel.customError, { _, newError in
+            guard let newError else { return }
+            
+            coordinator
+                .alert(newError.errorTitle,
+                       message: newError.errorDescription) {
+                    
+                Button(LS.Common.ok) {
+                    withAnimation {
+                        viewModel.customError = nil
+                    }
+                }
+            }
+        })
+    }
+}
+
+// MARK: Private UI
+private extension MapView {
+    @MapContentBuilder
+    func createMapRouteUI(
+        startLocation: CLLocationCoordinate2D?,
+        endLocation: CLLocationCoordinate2D?,
+        polylineCoordinates: [CLLocationCoordinate2D]
+    ) -> some MapContent {
+        // Start Marker
+        if let startLocation {
+            Annotation("Start", coordinate: startLocation) {
+                Circle()
+                    .fill(.green)
+                    .frame(width: 16, height: 16)
+                    .overlay(
+                        Circle().stroke(.white, lineWidth: 3)
+                    )
+            }
+        }
+        
+        // End Marker
+        if let endLocation {
+            Annotation("Finish", coordinate: endLocation) {
+                Circle()
+                    .fill(.red)
+                    .frame(width: 16, height: 16)
+                    .overlay(
+                        Circle().stroke(.white, lineWidth: 3)
+                    )
+            }
+        }
+
+        MapPolyline(coordinates: polylineCoordinates)
+            .stroke(
+                .blue.opacity(0.25),
+                style: StrokeStyle(
+                    lineWidth: 12,
+                    lineCap: .round,
+                    lineJoin: .round
+                )
+            )
+
+        MapPolyline(coordinates: polylineCoordinates)
+            .stroke(
+                .blue,
+                style: StrokeStyle(
+                    lineWidth: 6,
+                    lineCap: .round,
+                    lineJoin: .round
+                )
+            )
+    }
+    
+    func zoomToRoute(with id: String) {
+        guard let route = viewModel.routes.first(where: { $0.id == id }) else {
+            Log.debug("No route found to zoom")
+            return
+        }
+        
+        let routeCoords = route.polylineCoordinates.map { $0.toLocationCoordinate() }
+        guard let rect = MKMapRect.fitting(routeCoords, paddingMeters: 250) else { return }
+        
+        withAnimation {
+            cameraPosition = .rect(rect)
         }
     }
 }
@@ -115,13 +178,6 @@ private extension MapView {
     }
 }
 
-// MARK: Private UI
-private extension MapView {
-    
-    
-}
-
-
 #Preview {
     //    let previewContainer = MapItemDTO.preview
     //
@@ -133,43 +189,4 @@ private extension MapView {
 }
 
 
-struct RecordRouteButton: View {
-    @InjectedObservable(\.locationService)
-    private var locationService
-    
-    @Binding var cameraPosition: MapCameraPosition
-    
-    var body: some View {
-        Button {
-            if locationService.isRecording {
-                locationService.stopRecording()
-                zoomToRoute()
-                
-            } else {
-                withAnimation {
-                    cameraPosition = .userLocation(followsHeading: true, fallback: .automatic)
-                }
-                
-                locationService.startRecording()
-            }
-        } label: {
-            Text(locationService.isRecording ? "Stop" : "Start")
-                .bold()
-                .frame(maxWidth: .infinity)
-                .padding()
-                .background(locationService.isRecording ? .red : .green)
-                .foregroundStyle(.white)
-                .clipShape(RoundedRectangle(cornerRadius: 12))
-        }
-        .padding()
-    }
-    
-    func zoomToRoute() {
-        let coords = locationService.recordedLocations.map { $0.coordinate }
-        guard let rect = MKMapRect.fitting(coords, paddingMeters: 250) else { return }
-        
-        withAnimation {
-            cameraPosition = .rect(rect)
-        }
-    }
-}
+
