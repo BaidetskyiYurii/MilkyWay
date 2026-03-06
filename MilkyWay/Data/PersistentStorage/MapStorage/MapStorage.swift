@@ -48,20 +48,6 @@ extension MapStorage: MapStorageProtocol {
         updates(model)
         try modelContext.save()
     }
-    
-    @discardableResult
-    func insert(_ item: MapItem) throws -> PersistentIdentifier {
-        let model = MapItemDTO(from: item)
-        modelContext.insert(model)
-        try modelContext.save()
-        return model.persistentModelID
-    }
-
-    func fetch() throws -> [MapItem] {
-        try modelContext
-            .fetch(FetchDescriptor<MapItemDTO>())
-            .map { MapItem(from: $0) }
-    }
 }
 
 

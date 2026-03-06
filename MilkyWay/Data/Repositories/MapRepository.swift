@@ -9,11 +9,11 @@ import Foundation
 
 final class MapRepository {
     // MARK: - Properties
-    private let api: HomeAPIProtocol
+    private let api: MapAPIProtocol
     private let reachability: ReachabilityServiceProtocol
     private let storage: MapStorageProtocol
     
-    init(api: HomeAPIProtocol,
+    init(api: MapAPIProtocol,
          reachability: ReachabilityServiceProtocol,
          storage: MapStorageProtocol) {
         self.api = api
@@ -46,24 +46,5 @@ extension MapRepository: MapRepositoryProtocol {
     
     func updateRoute(id: String, using updates: (MapRouteDTO) -> Void) async throws {
         try await storage.updateRoute(id: id, using: updates)
-    }
-    
-    func insert(_ item: MapItem) async throws {
-        let _ = try await storage.insert(item)
-    }
-    
-    func fetchMapItems() async throws -> [MapItem] {
-        try await storage.fetch()
-    }
-    
-    func fetchPosts(query: String?) async throws -> [Post] {
-        guard reachability.isConnected else {
-            throw ReachabilityError.notConnected
-        }
-        
-        let newPosts = try await api
-            .fetchPosts(query: query)
-            .map { $0.toDomain() }
-        return newPosts
     }
 }

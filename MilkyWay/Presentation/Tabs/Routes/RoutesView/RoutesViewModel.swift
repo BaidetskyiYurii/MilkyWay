@@ -49,6 +49,7 @@ extension RoutesViewModel {
         
         do {
             let allRoutes = try await mapUseCase.fetchAllRoutes()
+            Log.debug("allRoutes \(allRoutes)")
             routes = allRoutes
         } catch {
             routes = []

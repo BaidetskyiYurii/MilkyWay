@@ -7,14 +7,14 @@
 
 import Foundation
 
-extension NetworkService: HomeAPIProtocol where R == HomeRoutes {
-    func fetchPosts(query: String?) async throws -> [PostResponseDTO] {
-        let requestDTO: FetchPostsRequestDTO = .init(query: query)
-        
-        return try await self.request(
-            .fetchPosts(baseURL, requestDTO),
-            target: [PostResponseDTO].self,
-            decoder: .apiDecoder
-        )
-    }
+extension NetworkService: MapAPIProtocol where R == HomeRoutes {
+//    func fetchPosts(query: String?) async throws -> [PostResponseDTO] {
+//        let requestDTO: FetchPostsRequestDTO = .init(query: query)
+//        
+//        return try await self.request(
+//            .fetchPosts(baseURL, requestDTO),
+//            target: [PostResponseDTO].self,
+//            decoder: .apiDecoder
+//        )
+//    }
 }

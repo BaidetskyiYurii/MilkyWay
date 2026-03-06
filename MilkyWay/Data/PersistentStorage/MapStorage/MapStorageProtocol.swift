@@ -16,10 +16,7 @@ import Foundation
 //}
 
 
-protocol MapStorageProtocol: ModelActor {
-    func insert(_ item: MapItem) throws -> PersistentIdentifier
-    func fetch() throws -> [MapItem]
-    
+protocol MapStorageProtocol: ModelActor {    
     func insertRoute(_ route: MapRoute) throws
     
     func fetchAllRoutes() throws -> [MapRoute]

@@ -43,16 +43,4 @@ extension MapUseCase: MapUseCaseProtocol {
     func updateRoute(id: String, using updates: (MapRouteDTO) -> Void) async throws {
         try await repository.updateRoute(id: id, using: updates)
     }
-    
-    func insert(_ item: MapItem) async throws {
-        try await repository.insert(item)
-    }
-    
-    func fetchMapItems() async throws -> [MapItem] {
-        try await repository.fetchMapItems()
-    }
-    
-    func fetchPosts(query: String?) async throws -> [Post] {
-        try await repository.fetchPosts(query: query)
-    }
 }

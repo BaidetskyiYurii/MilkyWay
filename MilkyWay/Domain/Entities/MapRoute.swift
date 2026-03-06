@@ -56,7 +56,6 @@ extension Coordinate {
     }
 }
 
-
 struct MapRoute: Equatable {
     let id: String
     let persistentModelID: PersistentIdentifier?

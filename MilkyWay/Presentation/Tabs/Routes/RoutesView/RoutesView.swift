@@ -73,5 +73,13 @@ private extension RoutesView {
 }
 
 #Preview {
-    RoutesView()
+    let previewContainer = MapRouteDTO.preview
+    
+    Container.shared.modelContainer.register {
+        previewContainer
+    }
+    
+    return RoutesView()
+        .modelContainer(previewContainer)
+
 }

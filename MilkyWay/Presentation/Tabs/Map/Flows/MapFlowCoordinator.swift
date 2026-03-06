@@ -17,14 +17,14 @@ extension MapFlowCoordinator: NavigationCoordinator {
     // screens available for navigation
     enum Screen: ScreenProtocol {
         case home
-        case homeDetails(Post)
+        case homeDetails
     }
     
     // view for each screen
     func destination(for screen: Screen) -> some View {
         switch screen {
         case .home: MapView()
-        case .homeDetails(let post): HomeDetailsView(post: post)
+        case .homeDetails: HomeDetailsView()
         }
     }
 }
@@ -45,7 +45,7 @@ extension MapFlowCoordinator: ModalCoordinator {
     func destination(for modal: Modal) -> some View {
         switch modal {
         case .modalDetails(let coordinator):
-            coordinator.view(for: .homeDetails(.dummy))
+            coordinator.view(for: .homeDetails)
                 .presentationDetents([.medium])
         }
     }

@@ -20,9 +20,14 @@ struct RecordRouteButtonView: View {
                 locationService.stopRecording()
                 
                 Task {
-                    if let newRoute = locationService.newRoute {
+                    let newRoute = viewModel.createNewRoute(
+                        isRecording: locationService.isRecording,
+                        startLocation: locationService.startLocation,
+                        endLocation: locationService.endLocation,
+                        recordedLocations: locationService.recordedLocations)
+                    
+                    if let newRoute {
                         await viewModel.insertNewMapRoute(newRoute)
-                        
                     }
                 }
             } else {

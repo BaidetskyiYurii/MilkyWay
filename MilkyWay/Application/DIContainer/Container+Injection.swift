@@ -34,7 +34,7 @@ extension Container {
 extension Container {
     
     // Home API
-    var homeAPI: Factory<HomeAPIProtocol> {
+    var homeAPI: Factory<MapAPIProtocol> {
         self { NetworkService<HomeRoutes>(baseURL: self.configuration().apiURL) }
             .scope(.cached)
     }
@@ -47,7 +47,8 @@ extension Container {
     var modelContainer: Factory<ModelContainer> {
         self {
             do {
-                let container = try ModelContainer(for: MapRouteDTO.self)
+                let container = try ModelContainer(for: MapRouteDTO.self,
+                                                   migrationPlan: MapRouteDTOMigrationPlan.self)
                 
                 for config in container.configurations {
                     Log.debug("📦 SwiftData model stored at: \(config.url.path)")
