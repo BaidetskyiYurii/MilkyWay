@@ -172,6 +172,7 @@ private extension MapView {
             if locationService.isRecording {
                 cameraPosition = .userLocation(followsHeading: true, fallback: .automatic)
             } else {
+                
 //                cameraPosition = .region(userRegion)
             }
         }
