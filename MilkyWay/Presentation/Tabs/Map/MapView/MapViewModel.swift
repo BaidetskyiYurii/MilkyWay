@@ -58,13 +58,13 @@ final class MapViewModel {
     
     // MARK: - Init methods
     init(mapUseCase: MapUseCaseProtocol) {
-        Log.debug("MapViewModel init")
+        Log.verbose("MapViewModel init")
         self.mapUseCase = mapUseCase
         subscribeToNotifications()
     }
     
     deinit {
-        Log.debug("MapViewModel deinit")
+        Log.verbose("MapViewModel deinit")
         notificationTask?.cancel()
         notificationTask = nil
     }

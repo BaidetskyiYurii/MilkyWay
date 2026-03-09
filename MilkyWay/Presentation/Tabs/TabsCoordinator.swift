@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftUI
+import FactoryKit
 
 final class TabsCoordinator {
     enum Tabs: Hashable, CaseIterable {
@@ -78,16 +79,34 @@ extension TabsCoordinator {
     struct TabsScreen: View {
         @ObservedObject var coordinator: TabsCoordinator
         
+        init(coordinator: TabsCoordinator) {
+            _coordinator = ObservedObject(wrappedValue: coordinator)
+        }
+        
         var body: some View {
             TabView(selection: $coordinator.currentTab) {
-                ForEach(coordinator.tabs, id: \.self) { tab in
-                    coordinator.view(for: tab)
-                        .tabItem {
-                            Label(tab.title, systemImage: tab.systemImage)
+                Group {
+                    ForEach(coordinator.tabs, id: \.self) { tab in
+                        Tab(tab.title, systemImage: tab.systemImage, value: tab, role: nil) {
+                            coordinator.view(for: tab)
                         }
-                        .tag(tab)
+                    }
                 }
             }
+            .tabViewStyle(.tabBarOnly)
+            .tabBarMinimizeBehavior(.onScrollDown)
+            .tint(.mwPurple)
         }
     }
+}
+
+#Preview {
+    let previewContainer = MapRouteDTO.preview
+    
+    Container.shared.modelContainer.register {
+        previewContainer
+    }
+    
+    return TabsCoordinator().rootView
+        .modelContainer(previewContainer)
 }

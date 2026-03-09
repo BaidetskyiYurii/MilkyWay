@@ -26,13 +26,13 @@ final class RoutesViewModel {
     
     // MARK: - Init methods
     init(mapUseCase: MapUseCaseProtocol) {
-        Log.debug("RoutesViewModel init")
+        Log.verbose("RoutesViewModel init")
         self.mapUseCase = mapUseCase
         subscribeToNotifications()
     }
     
     deinit {
-        Log.debug("RoutesViewModel deinit")
+        Log.verbose("RoutesViewModel deinit")
         notificationTask?.cancel()
         notificationTask = nil
     }
@@ -49,7 +49,6 @@ extension RoutesViewModel {
         
         do {
             let allRoutes = try await mapUseCase.fetchAllRoutes()
-            Log.debug("allRoutes \(allRoutes)")
             routes = allRoutes
         } catch {
             routes = []

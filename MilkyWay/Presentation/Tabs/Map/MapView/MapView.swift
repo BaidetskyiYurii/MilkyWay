@@ -10,6 +10,8 @@ import FactoryKit
 import MapKit
 
 struct MapView: View {
+    @Environment(\.scenePhase) private var scenePhase
+    
     @CoordinatorLink var appCoordinator: AppCoordinator
     @CoordinatorLink var coordinator: MapFlowCoordinator
     
@@ -20,9 +22,73 @@ struct MapView: View {
     @Namespace private var mapScope
     
     var body: some View {
+        map
+            .mapStyle(.standard)
+            .preferredColorScheme(.dark)
+            .overlay(alignment: .bottom) {
+                ZStack(alignment: .bottom) {
+                    GeometryReader { geo in
+                        LinearGradient.mapBottom
+                            .frame(height: 220 + geo.safeAreaInsets.bottom)
+                            .frame(maxHeight: .infinity, alignment: .bottom)
+                    }
+                    .allowsHitTesting(true)
+                    
+                    HStack {
+                        Spacer()
+                        
+                        RecordRouteButtonView(locationService: locationService, viewModel: viewModel, cameraPosition: $cameraPosition)
+                            .padding(.horizontal, 2)
+                        
+                        MapUserLocationButton(scope: mapScope)
+                            .background(.thinMaterial)
+                            .clipShape(Circle())
+                            .shadow(radius: 4)
+                    }
+                    .padding(.horizontal)
+                    .padding(.bottom, 80)
+                }
+                .ignoresSafeArea(edges: .bottom)
+            }
+            .mapScope(mapScope)
+            .onAppear {
+                updateCameraPosition()
+            }
+            .task {
+                await viewModel.getAllRoutes()
+            }
+            .onChange(of: viewModel.routeIdToZoomIn) { _, newValue in
+                guard let newValue else { return }
+                zoomToRoute(with: newValue)
+            }
+            .onChange(of: viewModel.customError, { _, newError in
+                guard let newError else { return }
+                
+                coordinator
+                    .alert(newError.errorTitle,
+                           message: newError.errorDescription) {
+                        
+                        Button(LS.Common.ok) {
+                            withAnimation {
+                                viewModel.customError = nil
+                            }
+                        }
+                    }
+            })
+            .onChange(of: scenePhase) { _, newPhase in
+                guard newPhase == .active else { return }
+                
+                updateCameraPosition()
+            }
+    }
+}
+
+// MARK: Private UI
+private extension MapView {
+    var map: some View {
         Map(position: $cameraPosition, scope: mapScope) {
             UserAnnotation()
-        
+            
             ForEach(viewModel.routes) { route in
                 let startLocation = route.startLocation.toLocationCoordinate()
                 let endLocation = route.endLocation.toLocationCoordinate()
@@ -44,52 +110,8 @@ struct MapView: View {
                 )
             }
         }
-        .safeAreaInset(edge: .bottom) {
-            HStack {
-                Spacer()
-                
-                RecordRouteButtonView(locationService: locationService, viewModel: viewModel, cameraPosition: $cameraPosition)
-                    .padding(.horizontal, 2)
-                
-                MapUserLocationButton(scope: mapScope)
-                    .background(.thinMaterial)
-                    .clipShape(Circle())
-                    .shadow(radius: 4)
-            }
-            .padding(.horizontal)
-            .padding(.bottom, 10)
-            
-        }
-        .mapScope(mapScope)
-        .onAppear {
-            updateCameraPosition()
-        }
-        .task {
-            await viewModel.getAllRoutes()
-        }
-        .onChange(of: viewModel.routeIdToZoomIn) { _, newValue in
-            guard let newValue else { return }
-            zoomToRoute(with: newValue)
-        }
-        .onChange(of: viewModel.customError, { _, newError in
-            guard let newError else { return }
-            
-            coordinator
-                .alert(newError.errorTitle,
-                       message: newError.errorDescription) {
-                    
-                Button(LS.Common.ok) {
-                    withAnimation {
-                        viewModel.customError = nil
-                    }
-                }
-            }
-        })
     }
-}
-
-// MARK: Private UI
-private extension MapView {
+    
     @MapContentBuilder
     func createMapRouteUI(
         startLocation: CLLocationCoordinate2D?,
@@ -119,7 +141,7 @@ private extension MapView {
                     )
             }
         }
-
+        
         MapPolyline(coordinates: polylineCoordinates)
             .stroke(
                 .blue.opacity(0.25),
@@ -129,7 +151,7 @@ private extension MapView {
                     lineJoin: .round
                 )
             )
-
+        
         MapPolyline(coordinates: polylineCoordinates)
             .stroke(
                 .blue,
@@ -159,20 +181,20 @@ private extension MapView {
 // MARK: Private Methods
 private extension MapView {
     func updateCameraPosition() {
-//        guard let userLocation = locationService.currentLocation else { return }
-//        let userRegion = MKCoordinateRegion(
-//            center: userLocation.coordinate,
-//            span: MKCoordinateSpan(
-//                latitudeDelta: 0.15,
-//                longitudeDelta: 0.15
-//            )
-//        )
+        //        guard let userLocation = locationService.currentLocation else { return }
+        //        let userRegion = MKCoordinateRegion(
+        //            center: userLocation.coordinate,
+        //            span: MKCoordinateSpan(
+        //                latitudeDelta: 0.15,
+        //                longitudeDelta: 0.15
+        //            )
+        //        )
         
         withAnimation {
             if locationService.isRecording {
                 cameraPosition = .userLocation(followsHeading: true, fallback: .automatic)
             } else {
-//                cameraPosition = .region(userRegion)
+                //                cameraPosition = .region(userRegion)
             }
         }
     }
