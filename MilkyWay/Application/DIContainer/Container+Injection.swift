@@ -26,7 +26,7 @@ extension Container {
     
     var locationService: Factory<LocationService> {
         self { @MainActor in LocationService() }
-            .scope(.cached)
+            .scope(.singleton)
     }
 }
 

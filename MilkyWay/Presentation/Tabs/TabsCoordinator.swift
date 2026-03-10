@@ -109,4 +109,5 @@ extension TabsCoordinator {
     
     return TabsCoordinator().rootView
         .modelContainer(previewContainer)
+        .environment(Container.shared.locationService.callAsFunction())
 }

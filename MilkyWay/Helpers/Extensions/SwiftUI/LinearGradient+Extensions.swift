@@ -19,4 +19,23 @@ extension LinearGradient {
         startPoint: .bottom,
         endPoint: .top
     )
+    
+    static let startJourney: LinearGradient = .init(
+        colors: [
+            .mwDeepPurple,
+            .mwButtonMidPurple,
+            .mwButtonPink,
+        ],
+        startPoint: .topLeading,
+        endPoint: .bottomTrailing
+    )
+    
+    static let endJourney: LinearGradient = .init(
+        colors: [
+            .mwButtonRed,
+            .mwButtonPink
+        ],
+        startPoint: .topLeading,
+        endPoint: .bottomTrailing
+    )
 }

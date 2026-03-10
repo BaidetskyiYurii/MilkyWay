@@ -13,14 +13,16 @@ import FactoryKit
 struct MilkyWayApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     
-    @Injected(\.modelContainer)
-    private var sharedModelContainer
+    @Injected(\.modelContainer) private var sharedModelContainer
+    
+    @InjectedObservable(\.locationService) private var locationService
     
     @StateObject var appCoordinator = AppCoordinator()
     
     var body: some Scene {
         WindowGroup {
             appCoordinator.rootView
+                .environment(locationService)
         }
         .modelContainer(sharedModelContainer)
     }

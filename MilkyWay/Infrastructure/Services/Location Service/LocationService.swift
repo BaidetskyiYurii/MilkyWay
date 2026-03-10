@@ -29,6 +29,11 @@ final class LocationService: NSObject {
         manager.allowsBackgroundLocationUpdates = true
         manager.pausesLocationUpdatesAutomatically = false
         startUpdating()
+        Log.verbose("LocationService init")
+    }
+    
+    deinit {
+        Log.verbose("LocationService deinit")
     }
 }
 

@@ -11,12 +11,12 @@ import MapKit
 
 struct MapView: View {
     @Environment(\.scenePhase) private var scenePhase
+    @Environment(LocationService.self) private var locationService
     
     @CoordinatorLink var appCoordinator: AppCoordinator
     @CoordinatorLink var coordinator: MapFlowCoordinator
     
     @InjectedObservable(\.mapViewModel) var viewModel
-    @InjectedObservable(\.locationService) var locationService
     
     @State private var cameraPosition: MapCameraPosition = .userLocation(followsHeading: false, fallback: .automatic)
     @Namespace private var mapScope
@@ -34,19 +34,12 @@ struct MapView: View {
                     }
                     .allowsHitTesting(true)
                     
-                    HStack {
-                        Spacer()
-                        
-                        RecordRouteButtonView(locationService: locationService, viewModel: viewModel, cameraPosition: $cameraPosition)
-                            .padding(.horizontal, 2)
-                        
-                        MapUserLocationButton(scope: mapScope)
-                            .background(.thinMaterial)
-                            .clipShape(Circle())
-                            .shadow(radius: 4)
-                    }
-                    .padding(.horizontal)
-                    .padding(.bottom, 80)
+                    RecordRouteButtonView(
+                        viewModel: viewModel,
+                        cameraPosition: $cameraPosition,
+                        mapScope: mapScope)
+                    .padding(.horizontal, 20)
+                    .padding(.bottom, 100)
                 }
                 .ignoresSafeArea(edges: .bottom)
             }
@@ -209,4 +202,5 @@ private extension MapView {
     
     return MapView()
         .modelContainer(previewContainer)
+        .environment(Container.shared.locationService.callAsFunction())
 }
