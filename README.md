@@ -3,7 +3,7 @@
 > A GPS journey tracker for iOS. Record routes in real time, visualize them on the map, and build a personal atlas of everywhere you've been.
 
 ![Platform](https://img.shields.io/badge/Platform-iOS%2017%2B-blue?style=flat)
-![Swift](https://img.shields.io/badge/Swift-5.9-orange?style=flat)
+![Swift](https://img.shields.io/badge/Swift-6.0+-orange?style=flat)
 ![SwiftUI](https://img.shields.io/badge/UI-SwiftUI-purple?style=flat)
 ![Architecture](https://img.shields.io/badge/Architecture-Clean%20Architecture-green?style=flat)
 ![Status](https://img.shields.io/badge/Status-In%20Progress-yellow?style=flat)
