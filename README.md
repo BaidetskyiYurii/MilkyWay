@@ -39,7 +39,7 @@
 | Networking | Custom `NetworkService` — `URLSession` + `async/await` |
 | Code Generation | SwiftGen (Fonts, Icons, Localizable strings) |
 | Architecture | Clean Architecture — Domain / Data / Presentation |
-| Min Deployment | iOS 26.0 |
+| Min Deployment | iOS 17.0 |
 | Swift | 6.0+ |
 
 ---
@@ -52,6 +52,7 @@ MilkyWay/
 │   ├── AppCoordinator/        # Root app coordinator
 │   ├── DIContainer/           # FactoryKit DI container
 │   ├── Configuration/         # App configuration
+6
 │   └── MilkyWayApp.swift      # @main entry, SwiftData container
 ├── Domain/
 │   ├── Entities/              # MapRoute (core domain model)
@@ -111,7 +112,7 @@ Dependency injection uses **FactoryKit** — all dependencies registered in `Con
 ### Requirements
 - Xcode 16+
 - iOS 17.0+ device or simulator
-- Swift 5.9+
+- Swift 6.0+
 
 ### Setup
 ```bash
