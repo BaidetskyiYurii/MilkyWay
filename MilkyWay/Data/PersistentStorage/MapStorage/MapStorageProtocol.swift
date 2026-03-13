@@ -25,5 +25,5 @@ protocol MapStorageProtocol: ModelActor {
     func deleteRoute(with id: String) throws
     func deleteAllRoutes() throws
     
-    func updateRoute(id: String, using updates: (MapRouteDTO) -> Void) throws
+    func updateRoute(id: String, using updates: @Sendable (MapRouteDTO) -> Void) throws
 }

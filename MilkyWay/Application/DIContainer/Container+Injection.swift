@@ -20,7 +20,7 @@ extension Container {
     
     // Reachability
     var reachabilityService: Factory<ReachabilityServiceProtocol> {
-        self { ReachabilityService() }
+        self { @MainActor in ReachabilityService() }
             .scope(.cached)
     }
     

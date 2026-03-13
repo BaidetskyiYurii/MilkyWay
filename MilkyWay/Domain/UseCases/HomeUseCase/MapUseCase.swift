@@ -40,7 +40,7 @@ extension MapUseCase: MapUseCaseProtocol {
         try await repository.deleteAllRoutes()
     }
     
-    func updateRoute(id: String, using updates: (MapRouteDTO) -> Void) async throws {
+    func updateRoute(id: String, using updates: @Sendable (MapRouteDTO) -> Void) async throws {
         try await repository.updateRoute(id: id, using: updates)
     }
 }

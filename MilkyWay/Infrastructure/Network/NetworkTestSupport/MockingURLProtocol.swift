@@ -21,7 +21,7 @@ final class MockingURLProtocol: URLProtocol {
         }
     }
     
-    static var mock: Mock?
+    nonisolated(unsafe) static var mock: Mock?
     private var dataTask: URLSessionDataTask?
     
     static func urlSession() -> URLSession {

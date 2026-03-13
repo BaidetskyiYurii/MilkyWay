@@ -54,12 +54,15 @@ struct CoordinatorLink<C>: DynamicProperty {
 protocol Coordinator: ObservableObject, Hashable { }
 
 ///A unique key for associating a Coordinator state
+@MainActor
 private var coordinatorStateKey: UInt8 = 0
 
 ///A unique key for associating a Coordinator weak reference
+@MainActor
 private var coordinatorWeakReferenceKey: UInt8 = 0
 
 ///A unique key for associating an any Coordinator weak reference
+@MainActor
 private var coordinatorAnyWeakReferenceKey: UInt8 = 0
 
 extension Coordinator {

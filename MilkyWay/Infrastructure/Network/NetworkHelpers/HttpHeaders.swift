@@ -11,5 +11,5 @@ typealias HttpHeaders = [String: String]
 
 extension HttpHeaders {
     
-    static var empty: HttpHeaders = [:]
+    static var empty: HttpHeaders { [:] }
 }

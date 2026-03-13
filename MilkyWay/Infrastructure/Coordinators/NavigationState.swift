@@ -13,6 +13,7 @@ import Combine
 ///It holds the modal flow and the associated parent coordinator.
 struct ModalPresentation {
     ///A placeholder coordinator used when no coordinator is provided for the modal flow.
+    @MainActor
     private final class PlaceholderCoordinator: Coordinator { }
     
     ///The modal flow that this presentation is handling.
@@ -22,9 +23,11 @@ struct ModalPresentation {
     let coordinator: any Coordinator
     
     ///A closure that returns the view to be displayed for the modal.
-    let destination: @MainActor ()->AnyView
+    let destination: @MainActor () -> AnyView
     
-    init(modalFlow: any ModalProtocol, destination: @escaping @MainActor @Sendable () -> AnyView) {
+    @MainActor
+    init(modalFlow: any ModalProtocol,
+         destination: @escaping @MainActor @Sendable () -> AnyView) {
         self.modalFlow = modalFlow
         
         if let coordinator = modalFlow.coordinator {
@@ -76,7 +79,9 @@ final class NavigationState: ObservableObject {
 private extension NavigationState {
     ///Helper method to close the keyboard when navigation or modal state changes.
     func closeKeyboard() {
-        UIApplication.shared.resignFirstResponder()
+        Task { @MainActor in
+            UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+        }
     }
 }
 

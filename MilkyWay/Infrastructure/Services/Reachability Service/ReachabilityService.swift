@@ -9,6 +9,7 @@ import Combine
 import Network
 import SwiftUI
 
+@MainActor
 @Observable
 final class ReachabilityService {
     private(set) var isMonitoring = false
@@ -22,7 +23,10 @@ final class ReachabilityService {
     
     init() { startMonitoring() }
     
-    deinit { stopMonitoring() }
+    deinit {
+        monitor?.cancel()
+        monitor = nil
+    }
 }
 
 extension ReachabilityService: ReachabilityServiceProtocol {
@@ -33,12 +37,12 @@ extension ReachabilityService: ReachabilityServiceProtocol {
         monitor = NWPathMonitor()
         monitor?.start(queue: queue)
         monitor?.pathUpdateHandler = { [weak self] path in
-            guard let self else { return }
             // Monitor runs on a background thread so we need to publish it on the main thread
-            DispatchQueue.main.async {
+            Task { @MainActor in
+                guard let self else { return }
                 if self.pathStatus != path.status {
                     self.pathStatus = path.status
-                    self.isConnected = self.pathStatus == .satisfied  ? true : false
+                    self.isConnected = path.status == .satisfied
                 }
             }
         }

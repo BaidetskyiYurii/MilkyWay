@@ -44,7 +44,7 @@ extension MapRepository: MapRepositoryProtocol {
         try await storage.deleteAllRoutes()
     }
     
-    func updateRoute(id: String, using updates: (MapRouteDTO) -> Void) async throws {
+    func updateRoute(id: String, using updates: @Sendable (MapRouteDTO) -> Void) async throws {
         try await storage.updateRoute(id: id, using: updates)
     }
 }
