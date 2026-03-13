@@ -7,6 +7,7 @@
 
 import Foundation
 
+@MainActor
 struct AppData {
     @Storage(key: "isSignedIn", defaultValue: false)
     static var isSignedIn: Bool

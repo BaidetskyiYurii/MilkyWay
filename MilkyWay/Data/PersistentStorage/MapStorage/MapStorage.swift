@@ -42,7 +42,7 @@ extension MapStorage: MapStorageProtocol {
     
     func updateRoute(
         id: String,
-        using updates: (MapRouteDTO) -> Void
+        using updates: @Sendable (MapRouteDTO) -> Void
     ) throws {
         let model = try fetchMapRouteDTO(for: id)
         updates(model)

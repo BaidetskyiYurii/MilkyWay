@@ -16,5 +16,5 @@ protocol MapUseCaseProtocol {
     func deleteRoute(with id: String) async throws
     func deleteAllRoutes() async throws
     
-    func updateRoute(id: String, using updates: (MapRouteDTO) -> Void) async throws
+    func updateRoute(id: String, using updates: @Sendable (MapRouteDTO) -> Void) async throws
 }

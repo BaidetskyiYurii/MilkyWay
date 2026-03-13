@@ -8,6 +8,7 @@
 import Foundation
 import SwiftUI
 
+@MainActor
 final class AppCoordinator {
     enum AppFlow: Hashable, CaseIterable {
         case signIn
