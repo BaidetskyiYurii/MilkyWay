@@ -54,20 +54,20 @@ struct MapView: View {
                 guard let newValue else { return }
                 zoomToRoute(with: newValue)
             }
-            .onChange(of: viewModel.customError, { _, newError in
+            .onChange(of: viewModel.customError) { _, newError in
                 guard let newError else { return }
                 
                 coordinator
                     .alert(newError.errorTitle,
                            message: newError.errorDescription) {
                         
-                        Button(LS.Common.ok) {
+                        Button(.ok) {
                             withAnimation {
                                 viewModel.customError = nil
                             }
                         }
                     }
-            })
+            }
             .onChange(of: scenePhase) { _, newPhase in
                 guard newPhase == .active else { return }
                 

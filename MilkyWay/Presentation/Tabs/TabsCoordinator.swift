@@ -9,6 +9,8 @@ import Foundation
 import SwiftUI
 import FactoryKit
 
+
+
 final class TabsCoordinator {
     enum Tabs: Hashable, CaseIterable, Sendable {
         case map
@@ -19,13 +21,13 @@ final class TabsCoordinator {
         var title: String {
             switch self {
             case .map:
-                LS.Map.navTitle
+                    .localized(.mapNavTitle)
             case .routes:
-                LS.Routes.navTitle
+                    .localized(.routesNavTitle)
             case .explore:
-                LS.Explore.navTitle
+                    .localized(.exploreNavTitle)
             case .profile:
-                LS.Profile.navTitle
+                    .localized(.profileNavTitle)
             }
         }
         

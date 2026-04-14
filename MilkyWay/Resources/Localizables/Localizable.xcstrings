@@ -1,0 +1,105 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "100 Test Texts" : {
+
+    },
+    "Back to Home View" : {
+
+    },
+    "End Journey" : {
+
+    },
+    "exploreNavTitle" : {
+      "comment" : "Explore Nav title",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Explore"
+          }
+        }
+      }
+    },
+    "map_nav_title" : {
+      "comment" : "Map Nav title",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Map"
+          }
+        }
+      }
+    },
+    "No Routes Yet" : {
+
+    },
+    "OK" : {
+      "comment" : "Common OK",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OK"
+          }
+        }
+      }
+    },
+    "post.title" : {
+
+    },
+    "profileNavTitle" : {
+      "comment" : "Profile Nav Title",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Profile"
+          }
+        }
+      }
+    },
+    "ProfileView" : {
+
+    },
+    "Routes" : {
+
+    },
+    "routesNavTitle" : {
+      "comment" : "Routes Nav title",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Routes"
+          }
+        }
+      }
+    },
+    "Start Journey" : {
+
+    },
+    "Start recording to create your first route." : {
+
+    },
+    "tapToSignIn" : {
+      "comment" : "Sign In action",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tap to Sign in"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.2"
+}

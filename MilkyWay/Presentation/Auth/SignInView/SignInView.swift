@@ -17,7 +17,7 @@ struct SignInView: View {
                 appCoordinator().handleSignIn()
             }
         } label: {
-            Text(LS.SignIn.tapToSignIn)
+            Text(.tapToSignIn)
         }
     }
 }
