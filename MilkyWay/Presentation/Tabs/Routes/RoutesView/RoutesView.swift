@@ -43,7 +43,7 @@ private extension RoutesView {
             VStack(alignment: .leading, spacing: 10) {
                 Text(route.name)
                     .font(Fonts.Poppins.bold.swiftUIFont(size: 18))
-                    .foregroundStyle(.black)
+                    .foregroundStyle(.white)
                 
                 Text(route.createdAt.formatted(.full))
                     .font(Fonts.Poppins.regular.swiftUIFont(size: 16))

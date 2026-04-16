@@ -164,17 +164,13 @@ extension RecordRouteButtonView {
     func handleStopAction() {
         locationService.stopRecording()
         
-        Task {
-            let newRoute = viewModel.createNewRoute(
-                isRecording: locationService.isRecording,
-                startLocation: locationService.startLocation,
-                endLocation: locationService.endLocation,
-                recordedLocations: locationService.recordedLocations)
-            
-            if let newRoute {
-                await viewModel.insertNewMapRoute(newRoute)
-            }
-        }
+        viewModel.createNewRoute(
+            isRecording: locationService.isRecording,
+            startLocation: locationService.startLocation,
+            endLocation: locationService.endLocation,
+            recordedLocations: locationService.recordedLocations)
+        
+        cameraPosition = .automatic
     }
 }
 

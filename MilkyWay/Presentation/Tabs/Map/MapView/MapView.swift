@@ -64,7 +64,7 @@ struct MapView: View {
                         Button(.ok) {
                             withAnimation {
                                 viewModel.customError = nil
-                            }
+                            } 
                         }
                     }
             }
@@ -72,6 +72,17 @@ struct MapView: View {
                 guard newPhase == .active else { return }
                 
                 updateCameraPosition()
+            }
+            .sheet(isPresented: $viewModel.isShowFinishRouteSheet) {
+                FinishRouteView(
+                    viewModel: viewModel,
+                    isShowSheet: $viewModel.isShowFinishRouteSheet,
+                    startLocation: locationService.startLocation!,
+                    endLocation: locationService.endLocation!,
+                    recordedLocations: locationService.recordedLocations)
+                .presentationDetents([.medium, .large])
+                .interactiveDismissDisabled(true)
+                .background(Color.mwBackground)
             }
     }
 }
@@ -103,6 +114,7 @@ private extension MapView {
                 )
             }
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
     
     @MapContentBuilder

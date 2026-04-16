@@ -13,6 +13,7 @@ import CoreLocation
 enum MapViewModelError: Error {
     case isStillRecording
     case notEnoughDataToCreateRoute
+    case couldNotSaveTheRoute
 }
 
 extension MapViewModelError {
@@ -21,9 +22,10 @@ extension MapViewModelError {
         switch self {
         case .isStillRecording:
             "Recording in Progress"
-            
         case .notEnoughDataToCreateRoute:
             "Not Enough Data"
+        case .couldNotSaveTheRoute:
+            "Oops..."
         }
     }
     
@@ -31,9 +33,10 @@ extension MapViewModelError {
         switch self {
         case .isStillRecording:
             "Recording is still in progress. Please stop recording before saving the route."
-            
         case .notEnoughDataToCreateRoute:
             "There is not enough location data to create a route. Please record more movement and try again."
+        case .couldNotSaveTheRoute:
+            "We could now save the route"
         }
     }
 }
@@ -56,6 +59,8 @@ final class MapViewModel {
     var error: Error? = nil
     var customError: MapViewModelError? = nil
     
+    var isShowFinishRouteSheet: Bool = false
+    
     // MARK: - Init methods
     init(mapUseCase: MapUseCaseProtocol) {
         Log.verbose("MapViewModel init")
@@ -77,11 +82,13 @@ extension MapViewModel {
             try await mapUseCase.insertRoute(newRoute)
             
             await MainActor.run {
+                isShowFinishRouteSheet = false
                 routeIdToZoomIn = newRoute.id
             }
-          
-            Log.debug("MapViewModel newRoute was inserted")
         } catch {
+            await MainActor.run {
+                customError = .couldNotSaveTheRoute
+            }
             Log.error("MapViewModel insertNewMapRoute failed: \(error)")
         }
     }
@@ -110,26 +117,18 @@ extension MapViewModel {
         startLocation: CLLocation?,
         endLocation: CLLocation?,
         recordedLocations: [CLLocation]
-    ) -> MapRoute? {
+    ) {
         guard !isRecording else {
             customError = .isStillRecording
-            return nil
+            return
         }
         
-        guard let startLocation, let endLocation, !recordedLocations.isEmpty else {
+        guard startLocation != nil,
+              endLocation != nil, !recordedLocations.isEmpty else {
             customError = .notEnoughDataToCreateRoute
-            return nil
+            return
         }
         
-        let newRoute = MapRoute(
-            id: UUID().uuidString,
-            name: "New Route",
-            startLocation: .init(from: startLocation),
-            endLocation: .init(from: endLocation),
-            polylineCoordinates: recordedLocations.map { .init(from: $0) },
-            createdAt: Date()
-        )
-        
-        return newRoute
+        isShowFinishRouteSheet = true
     }
 }
