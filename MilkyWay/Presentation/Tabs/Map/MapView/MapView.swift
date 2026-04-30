@@ -91,8 +91,7 @@ struct MapView: View {
 private extension MapView {
     var map: some View {
         Map(position: $cameraPosition, scope: mapScope) {
-            UserAnnotation()
-            
+            // Saved routes (bottom layer)
             ForEach(viewModel.routes) { route in
                 let startLocation = route.startLocation.toLocationCoordinate()
                 let endLocation = route.endLocation.toLocationCoordinate()
@@ -105,6 +104,7 @@ private extension MapView {
                 )
             }
             
+            // Currently recording route (middle layer)
             if locationService.isRecording {
                 let coords = locationService.recordedLocations.map { $0.coordinate }
                 createMapRouteUI(
@@ -113,6 +113,9 @@ private extension MapView {
                     polylineCoordinates: coords
                 )
             }
+            
+            // User location (top layer - always visible)
+            UserAnnotation()
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
@@ -122,28 +125,35 @@ private extension MapView {
         startLocation: CLLocationCoordinate2D?,
         endLocation: CLLocationCoordinate2D?,
         polylineCoordinates: [CLLocationCoordinate2D]
-    ) -> some MapContent {
+    ) -> some MapContent {        
         // Start Marker
         if let startLocation {
+            // Start location marker
             Annotation("Start", coordinate: startLocation) {
-                Circle()
-                    .fill(.green)
-                    .frame(width: 16, height: 16)
-                    .overlay(
-                        Circle().stroke(.white, lineWidth: 3)
-                    )
+                ZStack {
+                    Circle()
+                        .fill(.green)
+                        .frame(width: 25, height: 25)
+                    
+                    Image(systemName: "figure.walk")
+                        .foregroundColor(.white)
+                        .font(.system(size: 14, weight: .bold))
+                }
             }
         }
         
         // End Marker
         if let endLocation {
-            Annotation("Finish", coordinate: endLocation) {
-                Circle()
-                    .fill(.red)
-                    .frame(width: 16, height: 16)
-                    .overlay(
-                        Circle().stroke(.white, lineWidth: 3)
-                    )
+            Annotation("End", coordinate: endLocation) {
+                ZStack {
+                    Circle()
+                        .fill(.red)
+                        .frame(width: 25, height: 25)
+                    
+                    Image(systemName: "flag.checkered")
+                        .foregroundColor(.white)
+                        .font(.system(size: 14, weight: .bold))
+                }
             }
         }
         

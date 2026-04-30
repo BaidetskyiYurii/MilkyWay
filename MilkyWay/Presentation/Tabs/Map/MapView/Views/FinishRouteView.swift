@@ -8,73 +8,49 @@
 import SwiftUI
 import CoreLocation
 import FactoryKit
+import MapKit
 
 struct FinishRouteView: View {
-    var viewModel: MapViewModel
+    private var viewModel: MapViewModel
     
-    @Binding var isShowSheet: Bool
+    @Binding private var isShowSheet: Bool
     
-    let startLocation: CLLocation
-    let endLocation: CLLocation
-    let recordedLocations: [CLLocation]
+    private let startLocation: CLLocation
+    private let endLocation: CLLocation
+    private let recordedLocations: [CLLocation]
+    
+    @FocusState private var routeNameFocus: Bool
     
     @State private var routeName: String = ""
-    @FocusState private var routeNameFocus: Bool
+    @State private var cameraPosition: MapCameraPosition = .automatic
+    
+    init(viewModel: MapViewModel,
+         isShowSheet: Binding<Bool>,
+         startLocation: CLLocation,
+         endLocation: CLLocation,
+         recordedLocations: [CLLocation]) {
+        self.viewModel = viewModel
+        _isShowSheet = isShowSheet
+        self.startLocation = startLocation
+        self.endLocation = endLocation
+        self.recordedLocations = recordedLocations
+    }
     
     var body: some View {
         ScrollView(.vertical) {
-            VStack(alignment: .center, spacing: 15) {
-                HStack {
-                    Button {
-                        Task {
-                            let newRoute = MapRoute(
-                                id: UUID().uuidString,
-                                name: routeName,
-                                startLocation: .init(from: startLocation),
-                                endLocation: .init(from: endLocation),
-                                polylineCoordinates: recordedLocations.map { .init(from: $0) },
-                                createdAt: Date()
-                            )
-                            
-                            await viewModel.insertNewMapRoute(newRoute)
-                        }
-                    } label: {
-                        HStack(alignment: .center, spacing: 5) {
-                            Image(systemName: "checkmark.seal.fill")
-                                .foregroundColor(.mwLavender)
-                            
-                            Text("Save")
-                                .foregroundColor(.mwLavender)
-                                .font(Fonts.Poppins.semiBold.swiftUIFont(size: 16))
-                            
-                        }
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 4)
-                    }
-                    .glassEffect(.clear, in: .capsule)
-                    
-                    Spacer()
-                    
-                    Button {
-                        withAnimation {
-                            isShowSheet = false
-                        }
-                    } label: {
-                        Text("Fuggetaboutit")
-                            .foregroundColor(.mwLavender)
-                            .font(Fonts.Poppins.semiBold.swiftUIFont(size: 16))
-                            .padding(.horizontal, 6)
-                            .padding(.vertical, 4)
-                    }
-                    .glassEffect(.clear, in: .capsule)
-                }
-                .padding(.top, 15)
-                .padding(.horizontal, 15)
+            VStack(alignment: .leading, spacing: 15) {
+                header
                 
-                Text("Finish Your Route")
-                    .foregroundColor(.mwPurple)
-                    .font(Fonts.Poppins.bold.swiftUIFont(size: 20))
-                    .padding(.top, 15)
+                // Route Preview Map
+                routePreviewMap
+                    .frame(height: 200)
+                    .clipShape(RoundedRectangle(cornerRadius: 16))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 16)
+                            .stroke(Color.mwBorder, lineWidth: 2)
+                    )
+                    .padding(.horizontal, 15)
+                
                 
                 InputTextFieldView(
                     type: .routeName,
@@ -83,6 +59,7 @@ struct FinishRouteView: View {
                 .padding(.horizontal, 15)
                 .padding(.vertical, 10)
                 
+              
                 Spacer()
             }
         }
@@ -94,14 +71,156 @@ struct FinishRouteView: View {
     }
 }
 
+// MARK: Private views
+private extension FinishRouteView {
+    var header: some View {
+        HStack(alignment: .center, spacing: 10) {
+            Image(.journeyCompleteStar)
+                .resizable()
+                .frame(width: 50, height: 50)
+            
+            VStack(alignment: .leading, spacing: 0) {
+                Text("Journey Complete")
+                    .foregroundColor(.mwText)
+                    .font(Fonts.Poppins.bold.swiftUIFont(size: 20))
+                
+                Text("Review and save your route")
+                    .foregroundColor(.mwMutedText)
+                    .font(Fonts.Poppins.bold.swiftUIFont(size: 12))
+            }
+            
+            Spacer()
+        }
+        .padding(.horizontal, 15)
+       
+    }
+    var routePreviewMap: some View {
+        Map(position: $cameraPosition) {
+            // Draw the route polyline (lowest layer)
+            if recordedLocations.count > 1 {
+                MapPolyline(coordinates: recordedLocations.map { $0.coordinate })
+                    .stroke(.blue, lineWidth: 5)
+                    .mapOverlayLevel(level: .aboveRoads)
+            }
+            
+            // Start location marker (middle layer)
+            Annotation("Start", coordinate: startLocation.coordinate) {
+                ZStack {
+                    Circle()
+                        .fill(.green)
+                        .frame(width: 25, height: 25)
+                    
+                    Image(systemName: "figure.walk")
+                        .foregroundColor(.white)
+                        .font(.system(size: 14, weight: .bold))
+                }
+            }
+            .annotationTitles(.hidden)
+            
+            // End location marker (top layer - appears last, renders on top)
+            Annotation("End", coordinate: endLocation.coordinate) {
+                ZStack {
+                    Circle()
+                        .fill(.red)
+                        .frame(width: 25, height: 25)
+                    
+                    Image(systemName: "flag.checkered")
+                        .foregroundColor(.white)
+                        .font(.system(size: 14, weight: .bold))
+                }
+            }
+            .annotationTitles(.hidden)
+        }
+        .mapStyle(.standard)
+        .preferredColorScheme(.dark)
+        .onAppear {
+            // Calculate the region to show the entire route
+            updateCameraPosition()
+        }
+    }
+}
+
+// MARK: Helper Methods
+private extension FinishRouteView {
+    func updateCameraPosition(paddingMeters: Double = 1500) {
+        guard !recordedLocations.isEmpty else { return }
+        
+        let coordinates = recordedLocations.map { $0.coordinate }
+        
+        guard let mapRect = MKMapRect.fitting(coordinates, paddingMeters: paddingMeters) else { return }
+        
+        cameraPosition = .rect(mapRect)
+    }
+}
+
 #Preview {
     @Previewable var isShowSheet = true
+    
+    // Sample route data for preview
+    let start = CLLocation(latitude: 37.7749, longitude: -122.4194) // San Francisco
+    let end = CLLocation(latitude: 37.7849, longitude: -122.4094)
+    let sampleLocations = [
+        CLLocation(latitude: 37.7749, longitude: -122.4194),
+        CLLocation(latitude: 37.7769, longitude: -122.4174),
+        CLLocation(latitude: 37.7789, longitude: -122.4154),
+        CLLocation(latitude: 37.7809, longitude: -122.4134),
+        CLLocation(latitude: 37.7829, longitude: -122.4114),
+        CLLocation(latitude: 37.7849, longitude: -122.4094)
+    ]
     
     FinishRouteView(
         viewModel: Container.shared.mapViewModel.callAsFunction(),
         isShowSheet: .constant(isShowSheet),
-        startLocation: .init(),
-        endLocation: .init(),
-        recordedLocations: []
+        startLocation: start,
+        endLocation: end,
+        recordedLocations: sampleLocations
     )
+    .background(Color.mwBackground)
 }
+
+//                HStack {
+//                    Button {
+//                        Task {
+//                            let newRoute = MapRoute(
+//                                id: UUID().uuidString,
+//                                name: routeName,
+//                                startLocation: .init(from: startLocation),
+//                                endLocation: .init(from: endLocation),
+//                                polylineCoordinates: recordedLocations.map { .init(from: $0) },
+//                                createdAt: Date()
+//                            )
+//
+//                            await viewModel.insertNewMapRoute(newRoute)
+//                        }
+//                    } label: {
+//                        HStack(alignment: .center, spacing: 5) {
+//                            Image(systemName: "checkmark.seal.fill")
+//                                .foregroundColor(.mwLavender)
+//
+//                            Text("Save")
+//                                .foregroundColor(.mwLavender)
+//                                .font(Fonts.Poppins.semiBold.swiftUIFont(size: 16))
+//
+//                        }
+//                        .padding(.horizontal, 6)
+//                        .padding(.vertical, 4)
+//                    }
+//                    .glassEffect(.clear, in: .capsule)
+//
+//                    Spacer()
+//
+//                    Button {
+//                        withAnimation {
+//                            isShowSheet = false
+//                        }
+//                    } label: {
+//                        Text("Fuggetaboutit")
+//                            .foregroundColor(.mwLavender)
+//                            .font(Fonts.Poppins.semiBold.swiftUIFont(size: 16))
+//                            .padding(.horizontal, 6)
+//                            .padding(.vertical, 4)
+//                    }
+//                    .glassEffect(.clear, in: .capsule)
+//                }
+//                .padding(.top, 15)
+//                .padding(.horizontal, 15)
