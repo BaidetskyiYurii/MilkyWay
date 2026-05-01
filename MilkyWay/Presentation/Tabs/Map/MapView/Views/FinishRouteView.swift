@@ -51,14 +51,30 @@ struct FinishRouteView: View {
                     )
                     .padding(.horizontal, 15)
                 
+                HStack(spacing: 10) {
+                    JourneyInfoBox(type: .distance, value: "0.38 km")
+                    JourneyInfoBox(type: .duration, value: "01:35")
+                    JourneyInfoBox(type: .pins, value: "0")
+                    JourneyInfoBox(type: .photos, value: "0")
+                }
+                .padding(15)
                 
-                InputTextFieldView(
-                    type: .routeName,
-                    text: $routeName,
-                    isFocused: $routeNameFocus)
+                VStack(alignment: .leading, spacing: 10) {
+                    Text("ROUTE NAME")
+                        .foregroundColor(.mwText)
+                        .font(Fonts.Poppins.bold.swiftUIFont(size: 20))
+                    
+                    InputTextFieldView(
+                        type: .routeName,
+                        text: $routeName,
+                        isFocused: $routeNameFocus)
+                }
                 .padding(.horizontal, 15)
-                .padding(.vertical, 10)
-                
+               
+                // TODO: implement view for pins and photos
+          
+                buttons
+                    .padding(.top, 15)
               
                 Spacer()
             }
@@ -136,6 +152,65 @@ private extension FinishRouteView {
         .onAppear {
             // Calculate the region to show the entire route
             updateCameraPosition()
+        }
+    }
+    
+    var buttons: some View {
+        VStack(alignment: .center, spacing: 10) {
+            Button {
+                Task {
+                    let newRoute = MapRoute(
+                        id: UUID().uuidString,
+                        name: routeName,
+                        startLocation: .init(from: startLocation),
+                        endLocation: .init(from: endLocation),
+                        polylineCoordinates: recordedLocations.map { .init(from: $0) },
+                        createdAt: Date()
+                    )
+                    
+                    await viewModel.insertNewMapRoute(newRoute)
+                }
+            } label: {
+                HStack(alignment: .center, spacing: 5) {
+                    Spacer()
+                    
+                    Image(systemName: "checkmark.seal.fill")
+                        .foregroundColor(.mwWhite)
+                    
+                    Text("Save Journey")
+                        .foregroundColor(.mwWhite)
+                        .font(Fonts.Poppins.bold.swiftUIFont(size: 20))
+                    
+                    Spacer()
+                    
+                }
+                .frame(height: 55)
+                .background(LinearGradient.endJourney)
+                .clipShape(RoundedRectangle(cornerRadius: 16))
+                .padding(.horizontal, 15)
+                .padding(.vertical, 4)
+            }
+            
+            Button {
+                withAnimation {
+                    isShowSheet = false
+                }
+            } label: {
+                Text("Discard")
+                    .foregroundColor(.mwButtonRed)
+                    .font(Fonts.Poppins.semiBold.swiftUIFont(size: 16))
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 55)
+                    .background(Color.black.opacity(0.3))
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 16)
+                            .stroke(Color.mwButtonRed.opacity(0.5), lineWidth: 2)
+                            .shadow(color: .mwButtonRed.opacity(0.6), radius: 8, x: 0, y: 0)
+                    }
+                    .clipShape(RoundedRectangle(cornerRadius: 16))
+                    .shadow(color: .mwButtonRed.opacity(0.4), radius: 12, x: 0, y: 0)
+            }
+            .padding(.horizontal, 15)
         }
     }
 }

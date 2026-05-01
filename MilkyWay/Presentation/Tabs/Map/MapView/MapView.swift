@@ -82,6 +82,7 @@ struct MapView: View {
                     recordedLocations: locationService.recordedLocations)
                 .presentationDetents([.medium, .large])
                 .interactiveDismissDisabled(true)
+                .padding(.top, 20)
                 .background(Color.mwBackground)
             }
     }
