@@ -90,6 +90,7 @@ public extension View {
         isPresented: Binding<Bool>,
         duration: TimeInterval? = 4,
         edge: VerticalEdge = .bottom,
+        enableSwipe: Bool = false,
         onDismiss: (() -> Void)? = nil,
         @ViewBuilder content: @escaping () -> T
     ) -> some View {
@@ -98,6 +99,7 @@ public extension View {
                 isPresented: isPresented,
                 duration: duration,
                 edge: edge,
+                enableSwipe: enableSwipe,
                 onDismiss: onDismiss,
                 toastView: content
             )
@@ -108,6 +110,7 @@ public extension View {
         isPresented: Binding<Bool>,
         duration: TimeInterval? = 4,
         edge: VerticalEdge = .bottom,
+        enableSwipe: Bool = false,
         onDismiss: (() -> Void)? = nil,
         @ViewBuilder content: @escaping () -> T
     ) -> some View {
@@ -116,6 +119,7 @@ public extension View {
                 isPresented: isPresented,
                 duration: duration,
                 edge: edge,
+                enableSwipe: enableSwipe,
                 onDismiss: onDismiss,
                 toastView: content
             )

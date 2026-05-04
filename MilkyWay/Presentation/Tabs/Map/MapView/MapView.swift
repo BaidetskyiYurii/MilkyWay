@@ -18,12 +18,16 @@ struct MapView: View {
     
     @InjectedObservable(\.mapViewModel) var viewModel
     
+    @State private var showRecordingToast: Bool = false
+    
     @State private var cameraPosition: MapCameraPosition = .userLocation(followsHeading: false, fallback: .automatic)
     @Namespace private var mapScope
     
     var body: some View {
         map
+            .toolbar(.hidden, for: .navigationBar)
             .mapStyle(.standard)
+            .mapControlVisibility(.hidden)
             .preferredColorScheme(.dark)
             .overlay(alignment: .bottom) {
                 ZStack(alignment: .bottom) {
@@ -43,12 +47,28 @@ struct MapView: View {
                 }
                 .ignoresSafeArea(edges: .bottom)
             }
+            .toastOverlay(isPresented: $showRecordingToast,
+                          duration: nil,
+                          edge: .top,
+                          enableSwipe: false,
+                          onDismiss: nil) {
+                if let startDate = locationService.startDate {
+                    ActiveJourneyBannerView(
+                        startDate: startDate,
+                        distance: locationService.totalDistanceFormatted
+                    )
+                    .padding(.horizontal, 20)
+                }
+            }
             .mapScope(mapScope)
             .onAppear {
                 updateCameraPosition()
             }
             .task {
                 await viewModel.getAllRoutes()
+            }
+            .onChange(of: locationService.isRecording) { _, newValue in
+                showRecordingToast = newValue
             }
             .onChange(of: viewModel.routeIdToZoomIn) { _, newValue in
                 guard let newValue else { return }
@@ -79,7 +99,11 @@ struct MapView: View {
                     isShowSheet: $viewModel.isShowFinishRouteSheet,
                     startLocation: locationService.startLocation!,
                     endLocation: locationService.endLocation!,
-                    recordedLocations: locationService.recordedLocations)
+                    recordedLocations: locationService.recordedLocations,
+                    startDate: locationService.startDate!,
+                    endDate: locationService.endDate!,
+                    totalDistanceMeters: locationService.totalDistance
+                )
                 .presentationDetents([.medium, .large])
                 .interactiveDismissDisabled(true)
                 .padding(.top, 20)

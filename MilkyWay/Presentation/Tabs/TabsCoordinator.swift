@@ -9,8 +9,6 @@ import Foundation
 import SwiftUI
 import FactoryKit
 
-
-
 final class TabsCoordinator {
     enum Tabs: Hashable, CaseIterable, Sendable {
         case map

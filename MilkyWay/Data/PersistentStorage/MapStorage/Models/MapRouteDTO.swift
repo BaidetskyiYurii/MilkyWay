@@ -84,6 +84,9 @@ enum MapRouteDTOAppSchemaV1: VersionedSchema {
         var endLocation: CoordinateDTO
         var polylineCoordinates: [CoordinateDTO]
         var createdAt: Date
+        var startDate: Date
+        var endDate: Date
+        var totalDistanceMeters: Double
         
         init(
             id: String,
@@ -91,26 +94,33 @@ enum MapRouteDTOAppSchemaV1: VersionedSchema {
             startLocation: CoordinateDTO,
             endLocation: CoordinateDTO,
             polylineCoordinates: [CoordinateDTO],
-            createdAt: Date
+            createdAt: Date,
+            startDate: Date,
+            endDate: Date,
+            totalDistanceMeters: Double
         ) {
-            Log.debug("MapRouteDTO created with id \(id)")
             self.id = id
             self.name = name
             self.startLocation = startLocation
             self.endLocation = endLocation
             self.polylineCoordinates = polylineCoordinates
             self.createdAt = createdAt
+            self.startDate = startDate
+            self.endDate = endDate
+            self.totalDistanceMeters = totalDistanceMeters
         }
         
         convenience init(from protected: MapRoute) {
-            Log.debug("MapRouteDTO created from protected with id \(protected.id)")
             self.init(
                 id: protected.id,
                 name: protected.name,
                 startLocation: .init(from: protected.startLocation),
                 endLocation: .init(from: protected.endLocation),
                 polylineCoordinates: protected.polylineCoordinates.map { CoordinateDTO(from: $0) },
-                createdAt: protected.createdAt
+                createdAt: protected.createdAt,
+                startDate: protected.startDate,
+                endDate: protected.endDate,
+                totalDistanceMeters: protected.totalDistanceMeters
             )
         }
     }
@@ -128,9 +138,10 @@ extension MapRouteDTO {
 
             let context = container.mainContext
 
+            let route1StartDate = ISO8601DateFormatter().date(from: "2026-03-06T14:00:22Z") ?? Date()
             let route1 = MapRouteDTO(
                 id: "DA026D5E-83CD-4744-8329-66F8FE692B96",
-                name: "New Route 1",
+                name: "Morning Walk in Cupertino",
                 startLocation: .init(
                     id: "EDE69746-5FB6-46F9-A8FB-E4DA0FEF48CA",
                     latitude: 37.33087803,
@@ -154,12 +165,16 @@ extension MapRouteDTO {
                     .c("1C43C3AC-5271-47FF-AEE2-368276191CA3", 37.33023169, -122.02690797),
                     .c("22E67302-8001-4CF6-9B05-EA3670D96214", 37.33020696, -122.02657718)
                 ],
-                createdAt: ISO8601DateFormatter().date(from: "2026-03-06T14:00:22Z") ?? Date()
+                createdAt: route1StartDate,
+                startDate: route1StartDate,
+                endDate: route1StartDate.addingTimeInterval(892), // ~15 minutes
+                totalDistanceMeters: 385.50
             )
 
+            let route2StartDate = ISO8601DateFormatter().date(from: "2026-03-06T14:03:06Z") ?? Date()
             let route2 = MapRouteDTO(
                 id: "BCD78702-A78D-418B-B223-C59993D9F1F2",
-                name: "New Route 2 ",
+                name: "Afternoon Stroll",
                 startLocation: .init(
                     id: "296ED3AB-0539-4667-BB93-6B6CCF6AB0FB",
                     latitude: 37.33020111,
@@ -183,12 +198,16 @@ extension MapRouteDTO {
                     .c("873F3B0A-658E-4FA8-AA09-D57E34EB2CD6", 37.3295584, -122.01983681),
                     .c("063F6F77-EDF0-4D9F-BCE8-7DF7FCC1C9D7", 37.32940293, -122.01980518)
                 ],
-                createdAt: ISO8601DateFormatter().date(from: "2026-03-06T14:03:06Z") ?? Date()
+                createdAt: route2StartDate,
+                startDate: route2StartDate,
+                endDate: route2StartDate.addingTimeInterval(1245), // ~21 minutes
+                totalDistanceMeters: 542.75
             )
 
+            let route3StartDate = ISO8601DateFormatter().date(from: "2026-03-06T14:05:38Z") ?? Date()
             let route3 = MapRouteDTO(
                 id: "10838F11-834C-4C89-839A-AB184A1BF8D8",
-                name: "New Route 3",
+                name: "Evening Jog",
                 startLocation: .init(
                     id: "899FE796-0944-4021-9CB0-16C9044ADF00",
                     latitude: 37.3272494,
@@ -209,7 +228,10 @@ extension MapRouteDTO {
                     .c("914A64D0-068E-4398-A95E-F4C45139550A", 37.32463235, -122.01997872),
                     .c("0476425C-EA9B-44F3-BD5E-60B3A0818B18", 37.32466722, -122.02006159)
                 ],
-                createdAt: ISO8601DateFormatter().date(from: "2026-03-06T14:05:38Z") ?? Date()
+                createdAt: route3StartDate,
+                startDate: route3StartDate,
+                endDate: route3StartDate.addingTimeInterval(678), // ~11 minutes
+                totalDistanceMeters: 295.80
             )
 
             context.insert(route1)

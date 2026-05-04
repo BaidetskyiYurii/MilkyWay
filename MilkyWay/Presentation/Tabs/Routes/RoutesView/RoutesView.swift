@@ -21,54 +21,35 @@ struct RoutesView: View {
                 )
             } else {
                 ScrollView(.vertical) {
-                    ForEach(viewModel.routes) { route in
-                        createCard(for: route)
+                    VStack(spacing: 16) {
+                        ForEach(viewModel.routes) { route in
+                            RouteCardView(
+                                route: route,
+                                onTap: {
+                                    // TODO: Navigate to route detail
+                                    print("Route tapped: \(route.name)")
+                                },
+                                onDelete: {
+                                    Task {
+                                        await viewModel.delete(with: route.id)
+                                    }
+                                }
+                            )
+                        }
                     }
+                    .padding(.horizontal, 20)
+                    .padding(.top, 16)
+                    .padding(.bottom, 100) // Space for tab bar
                 }
                 .scrollIndicators(.hidden)
             }
         }
+        .background(Color.mwBackground)
         .navigationTitle("Routes")
         .loadingOverlay($viewModel.isLoading)
         .task {
             await viewModel.getAllRoutes()
         }
-    }
-}
-
-// MARK: Views
-private extension RoutesView {
-    func createCard(for route: MapRoute) -> some View {
-        HStack(alignment: .center, spacing: 0) {
-            VStack(alignment: .leading, spacing: 10) {
-                Text(route.name)
-                    .font(Fonts.Poppins.bold.swiftUIFont(size: 18))
-                    .foregroundStyle(.white)
-                
-                Text(route.createdAt.formatted(.full))
-                    .font(Fonts.Poppins.regular.swiftUIFont(size: 16))
-                    .foregroundStyle(.gray)
-            }
-            
-            Spacer()
-            
-            Button {
-                Task {
-                    await viewModel.delete(with: route.id)
-                }
-            } label: {
-                Image(systemName: "minus.square.fill")
-                    .foregroundStyle(.indigo)
-            }
-            
-        }
-        .padding(10)
-        .background {
-            RoundedRectangle(cornerRadius: 12)
-                .stroke(Color.indigo, lineWidth: 1)
-        }
-        .clipShape(RoundedRectangle(cornerRadius: 12))
-        .padding(.horizontal, 20)
     }
 }
 

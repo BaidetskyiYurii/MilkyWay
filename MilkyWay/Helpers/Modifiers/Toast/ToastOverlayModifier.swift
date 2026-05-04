@@ -12,6 +12,7 @@ struct ToastOverlayModifier<T: View>: ViewModifier {
     
     private let duration: TimeInterval?
     private let edge: VerticalEdge
+    private let enableSwipe: Bool
     private let onDismiss: (() -> Void)?
     private let toastView: () -> T
     
@@ -37,11 +38,13 @@ struct ToastOverlayModifier<T: View>: ViewModifier {
     init(isPresented: Binding<Bool>,
          duration: TimeInterval?,
          edge: VerticalEdge,
+         enableSwipe: Bool,
          onDismiss: (() -> Void)?,
          toastView: @escaping () -> T) {
         _isPresented = isPresented
         self.duration = duration
         self.edge = edge
+        self.enableSwipe = enableSwipe
         self.onDismiss = onDismiss
         self.toastView = toastView
     }
@@ -63,46 +66,7 @@ struct ToastOverlayModifier<T: View>: ViewModifier {
                     toastView()
                         .offset(y: dragOffsetY)
                         .opacity(Double(max(CGFloat(0.5), 1 - abs(dragOffsetY) / 200)))
-                        .gesture(
-                            DragGesture(minimumDistance: 5, coordinateSpace: .local)
-                                .onChanged { value in
-                                    cancelAutoDismiss()
-                                    // Only track vertical drag in the correct direction relative to edge
-                                    let dy = value.translation.height
-                                    switch edge {
-                                    case .bottom:
-                                        // Allow dragging down (positive dy); clamp upwards movement to zero to avoid jitter
-                                        dragOffsetY = max(0, dy)
-                                    case .top:
-                                        // Allow dragging up (negative dy); clamp downwards movement to zero
-                                        dragOffsetY = min(0, dy)
-                                    }
-                                }
-                                .onEnded { value in
-                                    let threshold: CGFloat = 30
-                                    let dy = value.translation.height
-                                    var shouldDismiss = false
-                                    switch edge {
-                                    case .bottom:
-                                        if dy > threshold { shouldDismiss = true }
-                                    case .top:
-                                        if dy < -threshold { shouldDismiss = true }
-                                    }
-                                    
-                                    if shouldDismiss {
-                                        // Trigger dismiss and reset offset
-                                        withAnimation(.bouncy(duration: animationDuration)) {
-                                            isPresented = false
-                                        }
-                                    } else {
-                                        scheduleAutoDismiss()
-                                        // Snap back
-                                        withAnimation(.bouncy(duration: animationDuration)) {
-                                            dragOffsetY = 0
-                                        }
-                                    }
-                                }
-                        )
+                        .gesture(enableSwipe ? dragGesture : nil)
                         .transition(.move(edge: transitionEdge).combined(with: .blurReplace))
                         .onAppear {
                             scheduleAutoDismiss()
@@ -115,6 +79,47 @@ struct ToastOverlayModifier<T: View>: ViewModifier {
 
 // MARK: Private methods
 private extension ToastOverlayModifier {
+    var dragGesture: some Gesture {
+        DragGesture(minimumDistance: 5, coordinateSpace: .local)
+            .onChanged { value in
+                cancelAutoDismiss()
+                // Only track vertical drag in the correct direction relative to edge
+                let dy = value.translation.height
+                switch edge {
+                case .bottom:
+                    // Allow dragging down (positive dy); clamp upwards movement to zero to avoid jitter
+                    dragOffsetY = max(0, dy)
+                case .top:
+                    // Allow dragging up (negative dy); clamp downwards movement to zero
+                    dragOffsetY = min(0, dy)
+                }
+            }
+            .onEnded { value in
+                let threshold: CGFloat = 30
+                let dy = value.translation.height
+                var shouldDismiss = false
+                switch edge {
+                case .bottom:
+                    if dy > threshold { shouldDismiss = true }
+                case .top:
+                    if dy < -threshold { shouldDismiss = true }
+                }
+
+                if shouldDismiss {
+                    // Trigger dismiss and reset offset
+                    withAnimation(.easeOut(duration: animationDuration)) {
+                        isPresented = false
+                    }
+                } else {
+                    scheduleAutoDismiss()
+                    // Snap back
+                    withAnimation(.bouncy(duration: animationDuration)) {
+                        dragOffsetY = 0
+                    }
+                }
+            }
+    }
+
     func scheduleAutoDismiss() {
         guard let duration, duration > 0 else { return }
         
@@ -155,8 +160,9 @@ private extension ToastOverlayModifier {
                     
                     Spacer()
                 }
+                .frame(height: 300)
                 .toastOverlay(isPresented: $isToastPresented,
-                              duration: 3.0,
+                              duration: nil,
                               edge: .top) {
                     Log.debug("On Dismiss called")
                 } content: {

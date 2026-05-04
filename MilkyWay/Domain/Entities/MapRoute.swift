@@ -65,6 +65,9 @@ struct MapRoute: Equatable {
     let endLocation: Coordinate
     let polylineCoordinates: [Coordinate]
     let createdAt: Date
+    let startDate: Date
+    let endDate: Date
+    let totalDistanceMeters: Double
     
     init(
         id: String,
@@ -73,9 +76,11 @@ struct MapRoute: Equatable {
         startLocation: Coordinate,
         endLocation: Coordinate,
         polylineCoordinates: [Coordinate],
-        createdAt: Date
+        createdAt: Date,
+        startDate: Date,
+        endDate: Date,
+        totalDistanceMeters: Double
     ) {
-        Log.debug("MapRoute created with id \(id)")
         self.id = id
         self.persistentModelID = persistentModelID
         self.name = name
@@ -83,6 +88,9 @@ struct MapRoute: Equatable {
         self.endLocation = endLocation
         self.polylineCoordinates = polylineCoordinates
         self.createdAt = createdAt
+        self.startDate = startDate
+        self.endDate = endDate
+        self.totalDistanceMeters = totalDistanceMeters
     }
 }
 
@@ -96,7 +104,10 @@ extension MapRoute: ProtectedModel {
             startLocation: .init(from: item.startLocation),
             endLocation: .init(from: item.endLocation),
             polylineCoordinates: item.polylineCoordinates.map { .init(from: $0) },
-            createdAt: item.createdAt
+            createdAt: item.createdAt,
+            startDate: item.startDate,
+            endDate: item.endDate,
+            totalDistanceMeters: item.totalDistanceMeters
         )
     }
 }

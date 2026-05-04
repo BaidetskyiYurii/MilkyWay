@@ -18,22 +18,53 @@ struct FinishRouteView: View {
     private let startLocation: CLLocation
     private let endLocation: CLLocation
     private let recordedLocations: [CLLocation]
+    private let startDate: Date
+    private let endDate: Date
+    private let totalDistanceMeters: Double
     
     @FocusState private var routeNameFocus: Bool
     
     @State private var routeName: String = ""
     @State private var cameraPosition: MapCameraPosition = .automatic
     
+    // MARK: - Computed Properties
+    
+    /// Formatted distance string in kilometers
+    private var formattedDistance: String {
+        let km = totalDistanceMeters / 1000.0
+        return String(format: "%.2f km", km)
+    }
+    
+    /// Formatted duration based on start and end date
+    private var formattedDuration: String {
+        let elapsed = endDate.timeIntervalSince(startDate)
+        let hours = Int(elapsed) / 3600
+        let minutes = Int(elapsed) / 60 % 60
+        let seconds = Int(elapsed) % 60
+        
+        if hours > 0 {
+            return String(format: "%02d:%02d:%02d", hours, minutes, seconds)
+        } else {
+            return String(format: "%02d:%02d", minutes, seconds)
+        }
+    }
+    
     init(viewModel: MapViewModel,
          isShowSheet: Binding<Bool>,
          startLocation: CLLocation,
          endLocation: CLLocation,
-         recordedLocations: [CLLocation]) {
+         recordedLocations: [CLLocation],
+         startDate: Date,
+         endDate: Date,
+         totalDistanceMeters: Double) {
         self.viewModel = viewModel
         _isShowSheet = isShowSheet
         self.startLocation = startLocation
         self.endLocation = endLocation
         self.recordedLocations = recordedLocations
+        self.startDate = startDate
+        self.endDate = endDate
+        self.totalDistanceMeters = totalDistanceMeters
     }
     
     var body: some View {
@@ -52,8 +83,8 @@ struct FinishRouteView: View {
                     .padding(.horizontal, 15)
                 
                 HStack(spacing: 10) {
-                    JourneyInfoBox(type: .distance, value: "0.38 km")
-                    JourneyInfoBox(type: .duration, value: "01:35")
+                    JourneyInfoBox(type: .distance, value: formattedDistance)
+                    JourneyInfoBox(type: .duration, value: formattedDuration)
                     JourneyInfoBox(type: .pins, value: "0")
                     JourneyInfoBox(type: .photos, value: "0")
                 }
@@ -165,7 +196,10 @@ private extension FinishRouteView {
                         startLocation: .init(from: startLocation),
                         endLocation: .init(from: endLocation),
                         polylineCoordinates: recordedLocations.map { .init(from: $0) },
-                        createdAt: Date()
+                        createdAt: Date(),
+                        startDate: startDate,
+                        endDate: endDate,
+                        totalDistanceMeters: totalDistanceMeters
                     )
                     
                     await viewModel.insertNewMapRoute(newRoute)
@@ -243,12 +277,24 @@ private extension FinishRouteView {
         CLLocation(latitude: 37.7849, longitude: -122.4094)
     ]
     
+    // Calculate sample distance
+    var sampleDistance: Double {
+        var dist = 0.0
+        for i in 0..<(sampleLocations.count - 1) {
+            dist += sampleLocations[i].distance(from: sampleLocations[i + 1])
+        }
+        return dist
+    }
+    
     FinishRouteView(
         viewModel: Container.shared.mapViewModel.callAsFunction(),
         isShowSheet: .constant(isShowSheet),
         startLocation: start,
         endLocation: end,
-        recordedLocations: sampleLocations
+        recordedLocations: sampleLocations,
+        startDate: Date.now.addingTimeInterval(-125), // 2 min 5 sec ago
+        endDate: Date.now,
+        totalDistanceMeters: sampleDistance
     )
     .background(Color.mwBackground)
 }

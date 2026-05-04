@@ -12,6 +12,7 @@ struct ToastWindowModifier<T: View>: ViewModifier {
     
     private let duration: TimeInterval?
     private let edge: VerticalEdge
+    private let enableSwipe: Bool
     private let onDismiss: (() -> Void)?
     private let toastView: () -> T
     
@@ -23,11 +24,13 @@ struct ToastWindowModifier<T: View>: ViewModifier {
     init(isPresented: Binding<Bool>,
          duration: TimeInterval?,
          edge: VerticalEdge,
+         enableSwipe: Bool,
          onDismiss: (() -> Void)?,
          toastView: @escaping () -> T) {
         _isPresented = isPresented
         self.duration = duration
         self.edge = edge
+        self.enableSwipe = enableSwipe
         self.onDismiss = onDismiss
         self.toastView = toastView
     }
@@ -42,6 +45,7 @@ struct ToastWindowModifier<T: View>: ViewModifier {
                                 isPresented: $isToastPresented,
                                 duration: duration,
                                 edge: edge,
+                                enableSwipe: enableSwipe,
                                 onDismiss: {
                                     overlay.hide()
                                     onDismiss?()
@@ -144,7 +148,7 @@ private final class PassThroughWindow: UIWindow {
             .toast(
                 isPresented: $isToastPresented,
                 duration: nil,
-                edge: .bottom
+                edge: .top
             ) {
                 HStack(spacing: 12) {
                     Image(systemName: "bell.fill")
