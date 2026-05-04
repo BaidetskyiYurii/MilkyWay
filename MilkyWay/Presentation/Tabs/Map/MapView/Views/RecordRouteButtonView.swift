@@ -22,7 +22,11 @@ struct RecordRouteButtonView: View {
             HStack(alignment: .center, spacing: 0) {
                 Spacer()
                 
-                mapUserLocationButton
+                VStack(alignment: .trailing, spacing: 10) {
+                    MapCompass(scope: mapScope)
+       
+                    mapUserLocationButton
+                }
             }
             .padding(.bottom, 10)
             

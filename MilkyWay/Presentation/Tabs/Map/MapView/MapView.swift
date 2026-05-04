@@ -25,7 +25,9 @@ struct MapView: View {
     
     var body: some View {
         map
+            .toolbar(.hidden, for: .navigationBar)
             .mapStyle(.standard)
+            .mapControlVisibility(.hidden)
             .preferredColorScheme(.dark)
             .overlay(alignment: .bottom) {
                 ZStack(alignment: .bottom) {
@@ -45,17 +47,19 @@ struct MapView: View {
                 }
                 .ignoresSafeArea(edges: .bottom)
             }
-            .toast(isPresented: $showRecordingToast,
-                   duration: nil,
-                   edge: .top, onDismiss: nil, content: {
+            .toastOverlay(isPresented: $showRecordingToast,
+                          duration: nil,
+                          edge: .top,
+                          enableSwipe: false,
+                          onDismiss: nil) {
                 if let startDate = locationService.startDate {
-                    ActiveJourneyBannerView(
-                        startDate: startDate,
-                        distance: locationService.totalDistanceFormatted
-                    )
-                    .padding(.horizontal, 20)
+                        ActiveJourneyBannerView(
+                            startDate: startDate,
+                            distance: locationService.totalDistanceFormatted
+                        )
+                        .padding(.horizontal, 20)
                 }
-            })
+            }
             .mapScope(mapScope)
             .onAppear {
                 updateCameraPosition()

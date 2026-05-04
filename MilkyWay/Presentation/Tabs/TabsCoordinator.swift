@@ -9,8 +9,6 @@ import Foundation
 import SwiftUI
 import FactoryKit
 
-
-
 final class TabsCoordinator {
     enum Tabs: Hashable, CaseIterable, Sendable {
         case map
@@ -79,6 +77,7 @@ extension TabsCoordinator: CustomCoordinator {
 // MARK: - Root View
 extension TabsCoordinator {
     struct TabsScreen: View {
+        @Environment(LocationService.self) private var locationService
         @ObservedObject var coordinator: TabsCoordinator
         
         init(coordinator: TabsCoordinator) {

@@ -8,11 +8,16 @@
 import SwiftUI
 
 struct ActiveJourneyBannerView: View {
-    let startDate: Date
-    let distance: String
+    private let startDate: Date
+    private let distance: String
     
     @State private var isAnimating = false
     @State private var currentDuration: String = "00:00"
+    
+    init(startDate: Date, distance: String) {
+        self.startDate = startDate
+        self.distance = distance
+    }
     
     var body: some View {
         HStack(spacing: 12) {
