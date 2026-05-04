@@ -20,6 +20,17 @@ final class LocationService: NSObject {
     var endLocation: CLLocation?
     var isRecording = false
     var isAuthorized = false
+    var startDate: Date?
+    var endDate: Date?
+    
+    /// Cached total distance in meters - updated incrementally as locations are added
+    private(set) var totalDistance: Double = 0.0
+    
+    /// Total distance in kilometers, formatted as a string
+    var totalDistanceFormatted: String {
+        let km = totalDistance / 1000.0
+        return String(format: "%.2f", km)
+    }
     
     override init() {
         super.init()
@@ -62,12 +73,15 @@ extension LocationService {
         recordedLocations.removeAll()
         startLocation = nil
         endLocation = nil
+        totalDistance = 0.0  // Reset cached distance
         
+        startDate = Date.now
         isRecording = true
         manager.startUpdatingLocation()
     }
 
     func stopRecording() {
+        endDate = Date.now
         isRecording = false
         endLocation = recordedLocations.last
     }
@@ -126,6 +140,9 @@ extension LocationService: CLLocationManagerDelegate {
             if distance > 100 {
                 return
             }
+            
+            // ✨ Incrementally update cached distance
+            totalDistance += distance
         }
 
         // 4️⃣ Set start if needed
