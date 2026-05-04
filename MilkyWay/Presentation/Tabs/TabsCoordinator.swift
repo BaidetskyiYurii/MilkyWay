@@ -77,7 +77,6 @@ extension TabsCoordinator: CustomCoordinator {
 // MARK: - Root View
 extension TabsCoordinator {
     struct TabsScreen: View {
-        @Environment(LocationService.self) private var locationService
         @ObservedObject var coordinator: TabsCoordinator
         
         init(coordinator: TabsCoordinator) {

@@ -53,11 +53,11 @@ struct MapView: View {
                           enableSwipe: false,
                           onDismiss: nil) {
                 if let startDate = locationService.startDate {
-                        ActiveJourneyBannerView(
-                            startDate: startDate,
-                            distance: locationService.totalDistanceFormatted
-                        )
-                        .padding(.horizontal, 20)
+                    ActiveJourneyBannerView(
+                        startDate: startDate,
+                        distance: locationService.totalDistanceFormatted
+                    )
+                    .padding(.horizontal, 20)
                 }
             }
             .mapScope(mapScope)
