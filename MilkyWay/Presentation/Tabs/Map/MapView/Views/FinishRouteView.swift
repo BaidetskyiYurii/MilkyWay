@@ -83,10 +83,10 @@ struct FinishRouteView: View {
                     .padding(.horizontal, 15)
                 
                 HStack(spacing: 10) {
-                    JourneyInfoBox(type: .distance, value: formattedDistance)
-                    JourneyInfoBox(type: .duration, value: formattedDuration)
-                    JourneyInfoBox(type: .pins, value: "0")
-                    JourneyInfoBox(type: .photos, value: "0")
+                    JourneyInfoBoxView(type: .distance, value: formattedDistance)
+                    JourneyInfoBoxView(type: .duration, value: formattedDuration)
+                    JourneyInfoBoxView(type: .pins, value: "0")
+                    JourneyInfoBoxView(type: .photos, value: "0")
                 }
                 .padding(15)
                 
@@ -139,8 +139,8 @@ private extension FinishRouteView {
             Spacer()
         }
         .padding(.horizontal, 15)
-       
     }
+    
     var routePreviewMap: some View {
         Map(position: $cameraPosition) {
             // Draw the route polyline (lowest layer)
@@ -202,6 +202,7 @@ private extension FinishRouteView {
                         totalDistanceMeters: totalDistanceMeters
                     )
                     
+                    // TODO: FIX look at the route
                     await viewModel.insertNewMapRoute(newRoute)
                 }
             } label: {
