@@ -9,13 +9,23 @@ import SwiftUI
 
 enum InputTextFieldType {
     case routeName
-    
+    case pinName
+
     var placeholder: String {
         switch self {
         case .routeName:
             "Set your route name"
+        case .pinName:
+            "Set a pin name"
         }
     }
+    
+//    var image: String {
+//        switch self {
+//        case .routeName:
+//            "pencil"
+//        }
+//    }
 }
 
 struct InputTextFieldView: View {
@@ -38,13 +48,14 @@ struct InputTextFieldView: View {
         self.isFocused = isFocused
     }
     
-    
     var body: some View {
         ZStack {
             HStack(spacing: 10) {
+                // TODO: Add image if needed
+                
                 textField
                 
-                if !text.isEmpty {
+                if !text.isEmpty && isFocused.wrappedValue {
                     clearButton
                 }
             }
@@ -115,7 +126,7 @@ fileprivate struct InputTextFieldViewPreviewWrapper: View {
             Spacer()
             
             InputTextFieldView(
-                type: .routeName,
+                type: .pinName,
                 text: $text,
                 isFocused: $isFocused
             )
@@ -124,6 +135,9 @@ fileprivate struct InputTextFieldViewPreviewWrapper: View {
             Spacer()
         }
         .background(Color.mwBackground)
+        .onTapGesture {
+            isFocused = false
+        }
     }
 }
 

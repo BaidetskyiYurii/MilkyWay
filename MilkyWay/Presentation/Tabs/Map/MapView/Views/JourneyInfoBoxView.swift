@@ -1,5 +1,5 @@
 //
-//  JourneyInfoBox.swift
+//  JourneyInfoBoxView.swift
 //  MilkyWay
 //
 //  Created by Baidetskyi Yurii on 01.05.2026.
@@ -40,7 +40,7 @@ enum JourneyInfoBoxType {
     }
 }
 
-struct JourneyInfoBox: View {
+struct JourneyInfoBoxView: View {
     let type: JourneyInfoBoxType
     let value: String
     
@@ -82,10 +82,10 @@ struct JourneyInfoBox: View {
 
 #Preview {
     HStack(spacing: 12) {
-        JourneyInfoBox(type: .distance, value: "0.38 km")
-        JourneyInfoBox(type: .duration, value: "01:35")
-        JourneyInfoBox(type: .pins, value: "0")
-        JourneyInfoBox(type: .photos, value: "0")
+        JourneyInfoBoxView(type: .distance, value: "0.38 km")
+        JourneyInfoBoxView(type: .duration, value: "01:35")
+        JourneyInfoBoxView(type: .pins, value: "0")
+        JourneyInfoBoxView(type: .photos, value: "0")
     }
     .padding(.horizontal, 15)
     .background(.mwBackground)
